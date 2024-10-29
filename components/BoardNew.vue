@@ -28,31 +28,42 @@ async function initBoard() {
 	let numberOfRows = 11
 	let colorCounter = 0
 	let wrapAtColumn = 6
+	let column = 1
 
+	// let column = 1
 	// Iterate over each row
 	for (let row = 1; row <= numberOfRows; row++) {
 		/**px position */
+		column = 1
 		let hexPosition = [0, 0 + hexHeightValue * row]
 
 		if (row === 7) colorCounter + 0
 
 		// change in direction changes each row above 6
+		console.log("row =", row)
+		console.log("column:", column)
+
 		if (row > 6) {
 			hexPosition[0] = hexWidth * (row - 6)
-			wrapAtColumn -= 1
 			hexPosition[1] += 0 + (hexHeightValue / 2) * (row - 6)
+
+			wrapAtColumn -= 1
 			rowLength -= 2
 		}
 
 		// For column in row assign a board position and get color
-		for (let column = 1; column <= rowLength; column++) {
+		for (; column <= rowLength; column++) {
 			let hexPos = [...hexPosition]
 
+			if (row > 6 && column < wrapAtColumn) {
+				hexPos[1] += 0 + -hexHeightValue * (row - 6)
+			}
+
 			// if larger than six, place the hex above and to the right, else place below and to the right
-			if (column >= wrapAtColumn) {
+			if (row > 6 && column < wrapAtColumn) {
+				hexPos[1] -= -hexHeightValue * 2 * (-column / 4)
+			} else if (column >= wrapAtColumn) {
 				hexPos[1] += (hexHeightValue / 2) * (column - 12)
-			} else if (column < wrapAtColumn && row > 6) {
-				hexPos[1] = 0 + (hexHeightValue / 2) * column * (row + 12)
 			} else {
 				hexPos[1] += (-hexHeightValue / 2) * column
 			}
@@ -78,7 +89,6 @@ async function initBoard() {
 				const newCounter = colorCounter + 3
 				colorCounter = newCounter
 			}
-			console.log(colorCounter)
 
 			if (colorCounter === 0) {
 				boardHex.color = colors[0]
