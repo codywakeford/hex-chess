@@ -15,7 +15,7 @@
  */
 
 /**Server side memory */
-let gameInstances: GameInstance[] = []
+// let gameInstances: GameInstance[] = []
 
 export default eventHandler(async (event) => {
 	const player: Player = {
@@ -32,7 +32,7 @@ export default eventHandler(async (event) => {
 		joinId: generateUniqueId(),
 	}
 
-	gameInstances.push(gameInstance)
+	// gameInstances.push(gameInstance)
 
 	const playerData = { playerId: player.id, gameId: gameInstance.id, joinId: gameInstance.joinId }
 	const gameData = { pieces: gameInstance.pieces }
@@ -53,63 +53,63 @@ const startingPieces: GamePiece[] = [
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [2, 5],
+		position: "b1",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [3, 6],
+		position: "c2",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [4, 7],
+		position: "d3",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [5, 8],
+		position: "e4",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [6, 9],
+		position: "f5",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [7, 8],
+		position: "g4",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [8, 7],
+		position: "h3",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [9, 6],
+		position: "i2",
 	},
 
 	{
 		type: "pawn",
 		color: "black",
 		alive: true,
-		position: [10, 5],
+		position: "j1",
 	},
 
 	// Bishops
@@ -117,19 +117,19 @@ const startingPieces: GamePiece[] = [
 		type: "bishop",
 		color: "black",
 		alive: true,
-		position: [6, 1],
+		position: "f1",
 	},
 	{
 		type: "bishop",
 		color: "black",
 		alive: true,
-		position: [6, 3],
+		position: "f2",
 	},
 	{
 		type: "bishop",
 		color: "black",
 		alive: true,
-		position: [6, 5],
+		position: "f3",
 	},
 
 	// King
@@ -137,7 +137,7 @@ const startingPieces: GamePiece[] = [
 		type: "king",
 		color: "black",
 		alive: true,
-		position: [7, 2],
+		position: "g1",
 	},
 
 	// Queen
@@ -145,7 +145,7 @@ const startingPieces: GamePiece[] = [
 		type: "queen",
 		color: "black",
 		alive: true,
-		position: [5, 2],
+		position: "e1",
 	},
 
 	// Horse
@@ -153,14 +153,14 @@ const startingPieces: GamePiece[] = [
 		type: "horse",
 		color: "black",
 		alive: true,
-		position: [4, 3],
+		position: "d1",
 	},
 
 	{
 		type: "horse",
 		color: "black",
 		alive: true,
-		position: [8, 3],
+		position: "h1",
 	},
 
 	// Castle
@@ -168,14 +168,14 @@ const startingPieces: GamePiece[] = [
 		type: "castle",
 		color: "black",
 		alive: true,
-		position: [9, 4],
+		position: "c1",
 	},
 
 	{
 		type: "castle",
 		color: "black",
 		alive: true,
-		position: [3, 4],
+		position: "i1",
 	},
 	/**White */
 	//Pawns
@@ -183,63 +183,63 @@ const startingPieces: GamePiece[] = [
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [2, 17],
+		position: "b7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [3, 16],
+		position: "c7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [4, 15],
+		position: "d7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [5, 14],
+		position: "e7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [6, 13],
+		position: "f7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [7, 14],
+		position: "g7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [8, 15],
+		position: "h7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [9, 16],
+		position: "i7",
 	},
 
 	{
 		type: "pawn",
 		color: "white",
 		alive: true,
-		position: [10, 17],
+		position: "j7",
 	},
 
 	// Bishops
@@ -247,19 +247,19 @@ const startingPieces: GamePiece[] = [
 		type: "bishop",
 		color: "white",
 		alive: true,
-		position: [6, 21],
+		position: "f11",
 	},
 	{
 		type: "bishop",
 		color: "white",
 		alive: true,
-		position: [6, 19],
+		position: "f10",
 	},
 	{
 		type: "bishop",
 		color: "white",
 		alive: true,
-		position: [6, 17],
+		position: "f9",
 	},
 
 	// King
@@ -267,7 +267,7 @@ const startingPieces: GamePiece[] = [
 		type: "king",
 		color: "white",
 		alive: true,
-		position: [7, 20],
+		position: "g10",
 	},
 
 	// Queen
@@ -275,7 +275,7 @@ const startingPieces: GamePiece[] = [
 		type: "queen",
 		color: "white",
 		alive: true,
-		position: [5, 20],
+		position: "e10",
 	},
 
 	// Horse
@@ -283,14 +283,14 @@ const startingPieces: GamePiece[] = [
 		type: "horse",
 		color: "white",
 		alive: true,
-		position: [4, 19],
+		position: "d9",
 	},
 
 	{
 		type: "horse",
 		color: "white",
 		alive: true,
-		position: [8, 19],
+		position: "h9",
 	},
 
 	// Castle
@@ -298,13 +298,13 @@ const startingPieces: GamePiece[] = [
 		type: "castle",
 		color: "white",
 		alive: true,
-		position: [9, 18],
+		position: "c8",
 	},
 
 	{
 		type: "castle",
 		color: "white",
 		alive: true,
-		position: [3, 18],
+		position: "i8",
 	},
 ]

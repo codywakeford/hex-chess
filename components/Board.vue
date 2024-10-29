@@ -1,133 +1,75 @@
 <template>
-	<div
-		id="board"
-		class="board"
-	>
-		<img
-			id="boardImage"
-			class="board-image"
-			src="../assets/hexboard.svg"
+	<div class="board">
+		<Hexagon
+			v-for="(hex, index) in boardHexes"
+			:color="hex.color"
+			class="hexagon"
+			:position="hex.name"
+			:height="hexHeight"
+			:selected="selectedPiece === hex"
+			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
+			@click="selectBoardPiece(hex), (selectedPiece = boardHexes[index])"
 		/>
 
-		<div
-			class="piece"
-			:style="{
-				left: `${piece.position[0]}px`,
-				bottom: `${piece.position[1]}px`,
-			}"
-			v-for="piece in pieces"
-		>
-			<img
-				:src="getImageSrc(piece)"
-				:style="{ width: pieceSize }"
-			/>
-		</div>
+		<Piece
+			v-for="piece in gamePieces"
+			:piece="piece"
+			:position="getPiecePosition(piece.position)"
+		/>
 	</div>
-
-	{{ hexHeight }}
+	{{ selectedPiece }}
 </template>
 
 <script setup lang="ts">
-const hexHeight = ref(0)
-const hexWidth = ref(0)
+const game = useGameStore()
+const selectedPiece = ref<HexBoardPiece | null>(null)
+const colors = ["#999", "#666", "#444"]
+const colors1 = ["#d18b47", "#e8ab6f", "#ffce9e"]
 
-const pieceSize = computed(() => {
-	return `${hexWidth.value / 2.5}px`
+const gamePieces = computed(() => {
+	return game.getGamePieces
+})
+const boardHexes = computed(() => {
+	return game.getBoardPieces
 })
 
-const gamePieces = ref<GamePiece[]>([])
+const selectedColors = ref(colors1)
+const letters = "abcdefghijkl"
 
-interface Props {
-	pieces: GamePiece[]
+const hexHeight = "100px"
+const hexHeightValue = parseInt(hexHeight)
+const hexWidth = Math.sqrt(3) * (100 / 2) - 1
+
+function selectBoardPiece(boardPiece: HexBoardPiece) {
+	game.selectBoardPiece(boardPiece)
 }
 
-function getImageSrc(piece: GamePiece) {
-	let src = ""
+const props = defineProps<{}>()
 
-	switch (piece.color) {
-		case "black":
-			src += "black-"
-			break
-
-		case "white":
-			src += "white-"
-			break
-	}
-
-	src += piece.type
-	src += ".png"
-
-	return src
-}
-
-const props = defineProps<Props>()
-
-// watch(props.pieces, (newValue) => renderPieces(newValue))
-
-function getBoardSize() {
-	const board = document.getElementById("boardImage")
-
-	console.log("hello")
-
-	if (!board) {
-		console.log("Board not found")
-		return
-	}
-
-	const boardHeight = board.clientHeight
-	const boardWidth = board.clientWidth
-
-	hexHeight.value = boardHeight / 11
-	console.log(hexHeight.value)
-	/**
-	 * 11 hexagons wide. Overlap is hexHeight / 4 (proof in readme.md)
-	 * On the board there are 6 full width hexagons (ones that dont have overlap)
-	 * And there are 5 half with hexagons. - 1/4 hexWidth * 2 * 5hexwidth - This is the overlap
-	 * This leaves 8.5 fullwidth hexagons accross X
-	 *
-	 */
-	hexWidth.value = boardWidth / 11.35
-}
-
-function getYPos(y: number) {
-	return (hexHeight.value / 2) * y
-}
-
-function getXPos(x: number) {
-	return hexWidth.value * x - hexWidth.value / 2
-}
-
-function renderPieces(pieces: GamePiece[]) {
-	pieces.forEach((piece) => {
-		piece.position[0] = getXPos(piece.position[0])
-		piece.position[1] = getYPos(piece.position[1])
-
-		gamePieces.value.push(piece)
+function getPiecePosition(positionName: GamePiece["position"]) {
+	// console.log(boardHexes.value)
+	const hex = boardHexes.value.find((hex) => {
+		return hex.name === positionName
 	})
+
+	if (hex) {
+		return hex.position
+	}
+
+	return [0, 0]
 }
-onMounted(() => {
-	setTimeout(() => {
-		getBoardSize()
-		renderPieces(props.pieces)
-	}, 2000)
+
+onMounted(async () => {
+	initGameBoard()
 })
 </script>
 
 <style lang="sass" scoped>
 .board
-    position: relative
-    width: min-content
-
-.board-image
-    margin-top: 10px
-    height: 95vh
-
-.piece
-    position: absolute
-    cursor: pointer
+	position: relative
+	top: 1000px
 
 
-
-    img
-        transform: translateY(50%)
+.hexagon
+	cursor: pointer
 </style>
