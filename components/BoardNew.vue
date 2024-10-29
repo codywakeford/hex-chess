@@ -1,10 +1,10 @@
 <template>
 	<div class="container">
 		<Hexagon
+			v-for="(hex, index) in boardHexes"
 			:color="hex.color"
 			class="hexagon"
 			:height="hexHeight"
-			v-for="(hex, index) in boardHexes"
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
 		/>
 	</div>
@@ -26,25 +26,22 @@ async function initBoard() {
 	let rowLength = 11
 	let colorOffset = 0
 	let numberOfRows = 11
+	let colorCounter = 0
+	let wrapAtColumn = 6
+
 	// Iterate over each row
 	for (let row = 1; row <= numberOfRows; row++) {
 		/**px position */
 		let hexPosition = [0, 0 + hexHeightValue * row]
 
-		// After rows 6 the rows get shorter by 2 each row
-		if (row > 6) {
-			hexPosition[0] += hexWidth * (row - 6)
-			hexPosition[1] = 0 + (hexHeightValue / 2) * (row + 12)
-			rowLength -= 2
-		}
+		if (row === 7) colorCounter + 0
 
-		// Alternate color pattern every row
-		if (row % 3 === 0) {
-			colorOffset = 2
-		} else if (row % 2 === 0) {
-			colorOffset = 0
-		} else {
-			colorOffset = 1
+		// change in direction changes each row above 6
+		if (row > 6) {
+			hexPosition[0] = hexWidth * (row - 6)
+			wrapAtColumn -= 1
+			hexPosition[1] += 0 + (hexHeightValue / 2) * (row - 6)
+			rowLength -= 2
 		}
 
 		// For column in row assign a board position and get color
@@ -52,8 +49,10 @@ async function initBoard() {
 			let hexPos = [...hexPosition]
 
 			// if larger than six, place the hex above and to the right, else place below and to the right
-			if (column >= 6) {
+			if (column >= wrapAtColumn) {
 				hexPos[1] += (hexHeightValue / 2) * (column - 12)
+			} else if (column < wrapAtColumn && row > 6) {
+				hexPos[1] = 0 + (hexHeightValue / 2) * column * (row + 12)
 			} else {
 				hexPos[1] += (-hexHeightValue / 2) * column
 			}
@@ -66,15 +65,29 @@ async function initBoard() {
 				position: hexPos,
 			}
 
-			if (column % 3 === 0) {
-				boardHex.color = colors[0 + colorOffset]
-			} else if (column % 2 === 0) {
-				boardHex.color = colors[1 + colorOffset]
+			if (column > 6) {
+				colorCounter += 1
 			} else {
-				boardHex.color = colors[2 + colorOffset]
+				colorCounter -= 1
 			}
 
-			console.log(boardHex.position)
+			if (colorCounter > 2) {
+				const newCounter = colorCounter - 3
+				colorCounter = newCounter
+			} else if (colorCounter < 0) {
+				const newCounter = colorCounter + 3
+				colorCounter = newCounter
+			}
+			console.log(colorCounter)
+
+			if (colorCounter === 0) {
+				boardHex.color = colors[0]
+			} else if (colorCounter === 1) {
+				boardHex.color = colors[1]
+			} else if (colorCounter === 2) {
+				boardHex.color = colors[2]
+			}
+
 			boardHexes.value.push(boardHex)
 		}
 	}
