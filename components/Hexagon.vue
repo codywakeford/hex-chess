@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="hexagon"
-		:class="{ selected: props.selected }"
+		:class="{ selected: boardPiece?.highlight === selected }"
 	>
 		<div class="hex-piece"></div>
 		<div class="hex-piece"></div>
@@ -17,7 +17,7 @@ interface Props {
 	color: string
 	height: string
 	selected: boolean
-	position: string
+	position: BoardPosition
 }
 const selected = computed(() => {
 	return props.selected

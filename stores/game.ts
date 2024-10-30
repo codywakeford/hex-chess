@@ -6,7 +6,7 @@ export const useGameStore = defineStore("game", {
 		board: {
 			gamePieces: [] as GamePiece[],
 			boardPieces: [] as HexBoardPiece[],
-			selectedBoardPiece: {} as GamePiece,
+			selectedBoardPiece: {} as HexBoardPiece,
 		} as BoardState,
 	}),
 
@@ -23,9 +23,9 @@ export const useGameStore = defineStore("game", {
 			return (state.board && state.board.gamePieces) || []
 		},
 
-		getGamePieceFromPosition: (state) => (positionName: HexBoardPiece["name"]) => {
+		getGamePieceFromPosition: (state) => (positionName: HexBoardPiece["boardPosition"]) => {
 			const piece = state.board.gamePieces.find((piece) => {
-				return piece.position === positionName
+				return piece.boardPosition === positionName
 			})
 
 			if (piece) {
@@ -39,9 +39,9 @@ export const useGameStore = defineStore("game", {
 			return (state.board && state.board.boardPieces) || []
 		},
 
-		getBoardPiece: (state) => (positionName: string) => {
+		getBoardPiece: (state) => (positionName: GamePiece["boardPosition"]) => {
 			return state.board.boardPieces.find((piece) => {
-				return piece.name === positionName
+				return piece.boardPosition === positionName
 			})
 		},
 	},
@@ -58,7 +58,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		selectBoardPiece(boardPiece: HexBoardPiece) {
-			const gamePiece = this.getGamePieceFromPosition(boardPiece.name)
+			const gamePiece = this.getGamePieceFromPosition(boardPiece.boardPosition)
 			if (!gamePiece) return
 			this.board.selectedBoardPiece = boardPiece
 
@@ -66,7 +66,10 @@ export const useGameStore = defineStore("game", {
 		},
 
 		displayPieceMoves() {
-			const piece = this.board.selectedBoardPiece
+			const piece = this.getGamePieceFromPosition(this.board.selectedBoardPiece.boardPosition)
+			console.log(piece)
+
+			if (!piece) return
 
 			// highlight available moves
 			if (piece.type === "pawn" && piece.color === "black") {

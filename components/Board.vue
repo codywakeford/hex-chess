@@ -4,25 +4,22 @@
 			v-for="(hex, index) in boardHexes"
 			:color="hex.color"
 			class="hexagon"
-			:position="hex.name"
+			:position="hex.boardPosition"
 			:height="hexHeight"
-			:selected="selectedPiece === hex"
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
-			@click="selectBoardPiece(hex), (selectedPiece = boardHexes[index])"
+			@click="selectBoardPiece(hex)"
 		/>
 
 		<Piece
 			v-for="piece in gamePieces"
 			:piece="piece"
-			:position="getPiecePosition(piece.position)"
+			:position="getPiecePosition(piece.boardPosition)"
 		/>
 	</div>
-	{{ selectedPiece }}
 </template>
 
 <script setup lang="ts">
 const game = useGameStore()
-const selectedPiece = ref<HexBoardPiece | null>(null)
 const colors = ["#999", "#666", "#444"]
 const colors1 = ["#d18b47", "#e8ab6f", "#ffce9e"]
 
@@ -46,11 +43,12 @@ function selectBoardPiece(boardPiece: HexBoardPiece) {
 
 const props = defineProps<{}>()
 
-function getPiecePosition(positionName: GamePiece["position"]) {
-	// console.log(boardHexes.value)
+function getPiecePosition(positionName: GamePiece["boardPosition"]) {
+	console.log(positionName)
 	const hex = boardHexes.value.find((hex) => {
-		return hex.name === positionName
+		return hex.boardPosition === positionName
 	})
+	console.log(hex)
 
 	if (hex) {
 		return hex.position
@@ -68,7 +66,6 @@ onMounted(async () => {
 .board
 	position: relative
 	top: 1000px
-
 
 .hexagon
 	cursor: pointer

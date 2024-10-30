@@ -13,7 +13,7 @@ declare global {
 		/**Contains information about the board piece, its position and so on. */
 		boardPieces: HexBoardPiece[]
 		gamePieces: GamePiece[]
-		selectedBoardPiece: GamePiece
+		selectedBoardPiece: HexBoardPiece
 	}
 	interface Player {
 		name?: string
@@ -22,8 +22,7 @@ declare global {
 	}
 
 	interface HexBoardPiece {
-		/**This is the name of the board position. E.g a1, g7, k11 */
-		name: string
+		boardPosition: BoardPosition
 
 		highlight: null | "move" | "attack" | "selected"
 

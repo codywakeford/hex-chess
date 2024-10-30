@@ -55,6 +55,7 @@ watch(
     position: absolute
     transform: translate(7px, 60px)
     z-index: 10
+
     img
         position: relative
         z-index: 10
