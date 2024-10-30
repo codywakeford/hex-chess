@@ -19,7 +19,7 @@ export const useGameStore = defineStore("game", {
 			return state.board || { gamePieces: [], boardPieces: [] }
 		},
 
-		getGamePieces(state) {
+		gamePieces(state) {
 			return (state.board && state.board.gamePieces) || []
 		},
 
@@ -35,8 +35,8 @@ export const useGameStore = defineStore("game", {
 			return null
 		},
 
-		getBoardPieces(state) {
-			return (state.board && state.board.boardPieces) || []
+		boardPieces(state) {
+			return state.board.boardPieces || []
 		},
 
 		getBoardPiece: (state) => (positionName: GamePiece["boardPosition"]) => {
@@ -58,6 +58,8 @@ export const useGameStore = defineStore("game", {
 		},
 
 		selectBoardPiece(boardPiece: HexBoardPiece) {
+			getDiagonalPaths(boardPiece.boardPosition)
+			// getHorizontalPaths(boardPiece.boardPosition)
 			const gamePiece = this.getGamePieceFromPosition(boardPiece.boardPosition)
 			if (!gamePiece) return
 			this.board.selectedBoardPiece = boardPiece
@@ -67,7 +69,6 @@ export const useGameStore = defineStore("game", {
 
 		displayPieceMoves() {
 			const piece = this.getGamePieceFromPosition(this.board.selectedBoardPiece.boardPosition)
-			console.log(piece)
 
 			if (!piece) return
 

@@ -9,12 +9,13 @@
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
 			@click="selectBoardPiece(hex)"
 		/>
-
+		<!-- 
 		<Piece
 			v-for="piece in gamePieces"
 			:piece="piece"
-			:position="getPiecePosition(piece.boardPosition)"
-		/>
+		/> -->
+
+		{{ gamePieces }}
 	</div>
 </template>
 
@@ -24,10 +25,10 @@ const colors = ["#999", "#666", "#444"]
 const colors1 = ["#d18b47", "#e8ab6f", "#ffce9e"]
 
 const gamePieces = computed(() => {
-	return game.getGamePieces
+	return game.gamePieces
 })
 const boardHexes = computed(() => {
-	return game.getBoardPieces
+	return game.boardPieces
 })
 
 const selectedColors = ref(colors1)
@@ -42,20 +43,6 @@ function selectBoardPiece(boardPiece: HexBoardPiece) {
 }
 
 const props = defineProps<{}>()
-
-function getPiecePosition(positionName: GamePiece["boardPosition"]) {
-	console.log(positionName)
-	const hex = boardHexes.value.find((hex) => {
-		return hex.boardPosition === positionName
-	})
-	console.log(hex)
-
-	if (hex) {
-		return hex.position
-	}
-
-	return [0, 0]
-}
 
 onMounted(async () => {
 	initGameBoard()

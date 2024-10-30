@@ -2,8 +2,8 @@
 	<div
 		class="piece"
 		:style="{
-			left: `${props.position[0]}px`,
-			bottom: `${props.position[1]}px`,
+			left: `${position[0]}px`,
+			bottom: `${position[1]}px`,
 		}"
 	>
 		<img
@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
+const game = useGameStore()
+const position = ref([0, 0])
+
 interface Props {
 	piece: GamePiece
-
-	/**Position in px */
-	position: number[]
 }
 const props = defineProps<Props>()
 
@@ -45,9 +45,29 @@ watch(
 	() => props.piece,
 	(newPiece) => {
 		imageSrc.value = getImageSrc(newPiece)
+		getPiecePosition(newPiece.boardPosition)
 	},
-	{ immediate: true }, // Ensures it runs immediately on mount
+	{ immediate: true },
 )
+
+function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
+	const boardPieces = game.boardPieces
+
+	const hex = boardPieces.find((hex) => {
+		return hex.boardPosition.x === boardPosition.x && hex.boardPosition.y === boardPosition.y
+	})
+
+	if (hex) {
+		position.value = hex.position
+		return hex.position
+	}
+
+	return [0, 0]
+}
+
+// onMounted(() => {
+// 	getPiecePosition(props.piece.boardPosition)
+// })
 </script>
 
 <style lang="sass" scoped>

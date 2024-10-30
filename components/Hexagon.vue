@@ -1,12 +1,12 @@
 <template>
 	<div
 		class="hexagon"
-		:class="{ selected: boardPiece?.highlight === selected }"
+		:class="{ selected: boardPiece?.highlight === 'selected' }"
 	>
 		<div class="hex-piece"></div>
 		<div class="hex-piece"></div>
 		<div class="hex-piece"></div>
-		<div class="piece-name">{{ props.position }}</div>
+		<div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
 	</div>
 </template>
 
@@ -16,19 +16,14 @@ const game = useGameStore()
 interface Props {
 	color: string
 	height: string
-	selected: boolean
 	position: BoardPosition
 }
-const selected = computed(() => {
-	return props.selected
-})
 
 const boardPiece = computed(() => {
 	return game.getBoardPiece(props.position)
 })
 
 const props = defineProps<Props>()
-console.log(boardPiece.value)
 </script>
 
 <style lang="sass" scoped>

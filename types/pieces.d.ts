@@ -12,8 +12,8 @@ declare global {
 
 	/**This is the name of the board position. E.g a1, g7, k11 - files and ranks*/
 	interface BoardPosition {
-		x: "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k"
-		y: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+		x: string
+		y: number
 	}
 
 	interface Pawn extends GamePiece {

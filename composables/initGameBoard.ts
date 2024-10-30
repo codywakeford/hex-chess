@@ -50,8 +50,11 @@ export function initGameBoard() {
 			// increment
 			hexPos[0] += hexWidth * column
 
-			const boardHex = {
-				name: `${letters[column - 1 + hexPositionNameOffset]}${row}`,
+			const boardHex: HexBoardPiece = {
+				boardPosition: {
+					x: `${letters[column - 1 + hexPositionNameOffset]}`,
+					y: row,
+				},
 				position: hexPos,
 				color: "",
 				highlight: null,
