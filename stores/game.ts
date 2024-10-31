@@ -57,27 +57,41 @@ export const useGameStore = defineStore("game", {
 			}
 		},
 
+		resetBoardHighlights() {
+			this.board.boardPieces.forEach((hex) => (hex.highlight = null))
+		},
+
 		selectBoardPiece(boardPiece: HexBoardPiece) {
-			getDiagonalPaths(boardPiece.boardPosition)
-			// getHorizontalPaths(boardPiece.boardPosition)
-			const gamePiece = this.getGamePieceFromPosition(boardPiece.boardPosition)
-			if (!gamePiece) return
+			this.resetBoardHighlights()
 			this.board.selectedBoardPiece = boardPiece
 
-			this.displayPieceMoves()
+			// const gamePiece = this.getGamePieceFromPosition(boardPiece.boardPosition)
+
+			// this.displayPieceMoves()
+			this.board.selectedBoardPiece.highlight = "selected"
 		},
 
 		displayPieceMoves() {
 			const piece = this.getGamePieceFromPosition(this.board.selectedBoardPiece.boardPosition)
 
-			if (!piece) return
+			// if (!piece) return
 
-			// highlight available moves
-			if (piece.type === "pawn" && piece.color === "black") {
-				// if first turn - move forward 2
-				// else - move one space forward
-				// if enemy to forward right - hightlight move
-			}
+			const straightPaths = getStraightPaths(this.board.selectedBoardPiece.boardPosition)
+			// console.log(straightPaths)
+			straightPaths.forEach((boardPosition) => {
+				const hex = this.board.boardPieces.find((hex) => {
+					return (
+						hex.boardPosition.x === boardPosition.x &&
+						hex.boardPosition.y === boardPosition.y
+					)
+				})
+
+				if (hex) {
+					hex.highlight = "move"
+				}
+
+				console.log(hex)
+			})
 		},
 
 		addBoardPiece(boardPiece: HexBoardPiece) {

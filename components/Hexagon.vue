@@ -1,7 +1,10 @@
 <template>
 	<div
 		class="hexagon"
-		:class="{ selected: boardPiece?.highlight === 'selected' }"
+		:class="{
+			selected: highlight === 'selected',
+			highlightMove: highlight === 'move',
+		}"
 	>
 		<div class="hex-piece"></div>
 		<div class="hex-piece"></div>
@@ -19,6 +22,10 @@ interface Props {
 	position: BoardPosition
 }
 
+const highlight = computed(() => {
+	return boardPiece.value?.highlight || null
+})
+
 const boardPiece = computed(() => {
 	return game.getBoardPiece(props.position)
 })
@@ -35,6 +42,19 @@ const props = defineProps<Props>()
             border-top: 2px solid #222
             border-bottom: 2px solid #222
             z-index: 2
+
+    &.highlightMove
+
+        &::before
+            content: ""
+            height: 10px
+            width: 10px
+            border-radius: 50%
+            background: red
+            position: absolute
+            top: 46px
+            left: 25px
+            z-index: 5
 
 
     .piece-name
