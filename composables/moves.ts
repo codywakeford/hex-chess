@@ -75,7 +75,7 @@ export function getDiagonalPaths(position: BoardPosition) {
 	if (y < 6 && letterIndex <= 5) {
 		distanceToCenter = 5 - letterIndex
 
-		// iterate over x vaue back toward a adding each position along the way
+		// iterate over x vaue back toward center. adding each position along the way
 
 		let xPos = position.x
 		const index = letters.indexOf(xPos)
@@ -97,26 +97,75 @@ export function getDiagonalPaths(position: BoardPosition) {
 			for (let i = 0; i < distanceToCenter; i++) {
 				const index = letters.indexOf(xPos)
 
-				const bottomRightPosition = letters[index + 1]
-				xPos = bottomRightPosition
-				diagonalHexagons.push({ x: bottomRightPosition, y: position.y })
+				xPos = letters[index + 1]
+				diagonalHexagons.push({ x: xPos, y: position.y })
 			}
 		}
 
-		let distanceFromCenterToRight = 6
+		let distanceFromCenterToRight = y - 1
+		let yPos = position.y
 
-		distanceFromCenterToRight = 6 - (y - 6)
+		for (let i = 0; i < distanceFromCenterToRight; i++) {
+			const index = letters.indexOf(xPos)
+			const nextColumn = letters[index + 1]
+			xPos = nextColumn
+			yPos -= 1
 
-		distanceFromCenterToRight
+			diagonalHexagons.push({ x: nextColumn, y: yPos })
+		}
 
 		return diagonalHexagons
-	}
+	} else if (letterIndex >= 5) {
+		distanceToCenter = letterIndex - 5
 
-	return "hello"
+		// top right of the board
+		if (y >= 6 - distanceToCenter) {
+			let xPos = position.x
+
+			// Get all hexs' top left of current hex
+			diagonalHexagons.push(position)
+			let offset = 0
+
+			// move down and right adding all hexes
+			while (xPos != "k") {
+				const index = letters.indexOf(xPos)
+				offset += 1
+
+				xPos = letters[index + 1]
+				diagonalHexagons.push({ x: xPos, y: position.y - offset })
+			}
+
+			xPos = position.x
+			distanceToCenter
+			offset = 0
+			for (let i = 0; i < distanceToCenter; i++) {
+				const index = letters.indexOf(xPos)
+
+				offset += 1
+				xPos = letters[index - 1]
+
+				diagonalHexagons.push({ x: xPos, y: position.y + offset })
+			}
+
+			let distanceFromCenterToLeft = 5 - (y - 6)
+
+			for (let i = 1; i <= distanceFromCenterToLeft; i++) {
+				const index = letters.indexOf(xPos)
+				xPos = letters[index - 1]
+
+				diagonalHexagons.push({ x: xPos, y: position.y + offset })
+			}
+		}
+
+		diagonalHexagons
+
+		return y >= 6 - distanceToCenter
+	}
 }
 
-const result = getDiagonalPaths({ y: 5, x: "c" })
+// Quokka
+const result = getDiagonalPaths({ y: 7, x: "h" })
 
-result
+// result
 
 // plane 3 - Sloping up
