@@ -9,11 +9,11 @@
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
 			@click="selectBoardPiece(hex)"
 		/>
-		<!-- 
+
 		<Piece
 			v-for="piece in gamePieces"
 			:piece="piece"
-		/> -->
+		/>
 
 		{{ gamePieces }}
 	</div>

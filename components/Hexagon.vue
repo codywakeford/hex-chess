@@ -4,6 +4,7 @@
 		:class="{
 			selected: highlight === 'selected',
 			highlightMove: highlight === 'move',
+			attack: highlight === 'attack',
 		}"
 	>
 		<div class="hex-piece"></div>
@@ -44,7 +45,6 @@ const props = defineProps<Props>()
             z-index: 2
 
     &.highlightMove
-
         &::before
             content: ""
             height: 10px
@@ -56,6 +56,11 @@ const props = defineProps<Props>()
             left: 25px
             z-index: 5
 
+    &.attack
+        .hex-piece
+            border-top: 2px solid red
+            border-bottom: 2px solid red
+            z-index: 2
 
     .piece-name
         position: relative

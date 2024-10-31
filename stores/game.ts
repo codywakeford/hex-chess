@@ -67,7 +67,7 @@ export const useGameStore = defineStore("game", {
 
 			// const gamePiece = this.getGamePieceFromPosition(boardPiece.boardPosition)
 
-			// this.displayPieceMoves()
+			this.displayPieceMoves()
 			this.board.selectedBoardPiece.highlight = "selected"
 		},
 
@@ -76,9 +76,26 @@ export const useGameStore = defineStore("game", {
 
 			// if (!piece) return
 
-			const straightPaths = getStraightPaths(this.board.selectedBoardPiece.boardPosition)
-			// console.log(straightPaths)
-			straightPaths.forEach((boardPosition) => {
+			// const straightPaths = getStraightPaths(
+			// 	this.board.selectedBoardPiece.boardPosition,
+			// 	this.board.boardPieces,
+			// 	this.board.gamePieces,
+			// )
+
+			// const diagonalPaths = getDiagonalPaths(
+			// 	this.board.selectedBoardPiece.boardPosition,
+			// 	this.board.boardPieces,
+			// 	this.board.gamePieces,
+			// )
+
+			// const paths = [...diagonalPaths]
+
+			const paths = horseMoves(
+				this.board.selectedBoardPiece.boardPosition,
+				this.board.boardPieces,
+			)
+
+			paths.forEach((boardPosition) => {
 				const hex = this.board.boardPieces.find((hex) => {
 					return (
 						hex.boardPosition.x === boardPosition.x &&
@@ -88,9 +105,11 @@ export const useGameStore = defineStore("game", {
 
 				if (hex) {
 					hex.highlight = "move"
-				}
 
-				console.log(hex)
+					if (positionContainsPiece(boardPosition, this.board.gamePieces)) {
+						hex.highlight = "attack"
+					}
+				}
 			})
 		},
 
