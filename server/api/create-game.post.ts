@@ -14,32 +14,30 @@
  *
  */
 
-/**Server side memory */
-// let gameInstances: GameInstance[] = []
+import { gameInstances } from "../cache"
 
 export default eventHandler(async (event) => {
 	const player: Player = {
 		id: generateUniqueId(),
 		color: "white",
-		name: "",
+	}
+
+	const boardState: BoardState = {
+		gamePieces: startingPieces,
+		selectedBoardPiece: null,
+		boardPieces: [] as HexBoardPiece[],
 	}
 
 	const gameInstance: GameInstance = {
 		id: generateUniqueId(),
 		playerOne: player,
-		playerTwo: undefined,
-		pieces: startingPieces,
-		joinId: generateUniqueId(),
+		playerTwo: null,
+
+		boardState: boardState,
 	}
 
-	// gameInstances.push(gameInstance)
-
-	const playerData = { playerId: player.id, gameId: gameInstance.id, joinId: gameInstance.joinId }
-	const gameData = { pieces: gameInstance.pieces }
-	return {
-		playerData,
-		gameData,
-	}
+	gameInstances.set(gameInstance.id, gameInstance)
+	return gameInstance
 })
 
 function generateUniqueId() {

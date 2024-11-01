@@ -7,8 +7,11 @@ declare global {
 		alive: boolean
 
 		/**X and Y position */
-		boardPosition: BoardPosition
+		boardPosition: BoardPosition | null
 	}
+
+	type Side = "ally" | "enemy" | null
+	type GamePieceColor = "white" | "black"
 
 	/**This is the name of the board position. E.g a1, g7, k11 - files and ranks*/
 	interface BoardPosition {

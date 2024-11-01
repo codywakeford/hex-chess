@@ -7,15 +7,14 @@
 			:position="hex.boardPosition"
 			:height="hexHeight"
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
-			@click="selectBoardPiece(hex)"
+			@click="handleHexClick(hex)"
 		/>
 
 		<Piece
+			class="piece"
 			v-for="piece in gamePieces"
 			:piece="piece"
 		/>
-
-		{{ gamePieces }}
 	</div>
 </template>
 
@@ -30,6 +29,15 @@ const gamePieces = computed(() => {
 const boardHexes = computed(() => {
 	return game.boardPieces
 })
+
+function handleHexClick(hex: HexBoardPiece) {
+	if (hex.highlight === "move" || hex.highlight === "attack") {
+		game.movePiece(hex.boardPosition)
+		return
+	}
+
+	selectBoardPiece(hex)
+}
 
 const selectedColors = ref(colors1)
 const letters = "abcdefghijkl"
@@ -53,6 +61,7 @@ onMounted(async () => {
 .board
 	position: relative
 	top: 1000px
+
 
 .hexagon
 	cursor: pointer

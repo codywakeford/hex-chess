@@ -231,6 +231,7 @@ export function getStraightPaths(
 	position: BoardPosition,
 	boardPieces: HexBoardPiece[],
 	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ): BoardPosition[] {
 	/**
 	 * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
@@ -255,7 +256,14 @@ export function getStraightPaths(
 			cursorPos = _function(cursorPos)
 
 			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-			if (positionContainsPiece(cursorPos, gamePieces)) break
+			const side = positionContainsPiece(cursorPos, gamePieces, color)
+
+			if (side === "enemy") {
+				diagonalHexagons.push(cursorPos)
+				break
+			} else if (side === "ally") {
+				break
+			}
 		}
 	})
 
@@ -266,6 +274,7 @@ export function getDiagonalPaths(
 	position: BoardPosition,
 	boardPieces: HexBoardPiece[],
 	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ): BoardPosition[] {
 	/**
 	 * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
@@ -290,8 +299,12 @@ export function getDiagonalPaths(
 			cursorPos = _function(cursorPos)
 
 			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-			if (positionContainsPiece(cursorPos, gamePieces)) {
+			const side = positionContainsPiece(cursorPos, gamePieces, color)
+
+			if (side === "enemy") {
 				diagonalHexagons.push(cursorPos)
+				break
+			} else if (side === "ally") {
 				break
 			}
 		}
@@ -310,8 +323,39 @@ export function outOfBounds(position: BoardPosition, boardPieces: HexBoardPiece[
 	return !isInBounds
 }
 
-export function positionContainsPiece(position: BoardPosition, gamePieces: GamePiece[]): boolean {
+export function positionContainsPiece(
+	position: BoardPosition,
+	gamePieces: GamePiece[],
+	color: GamePieceColor,
+): Side {
+	const containsPiece = gamePieces.find((piece) => {
+		return (
+			piece.boardPosition &&
+			piece.boardPosition.x === position.x &&
+			piece.boardPosition.y === position.y
+		)
+	})
+
+	if (!containsPiece) return null
+
+	if (containsPiece.color === color) {
+		return "ally"
+	}
+
+	return "enemy"
+}
+
+export function positionContainsEnemyPiece(
+	position: BoardPosition,
+	gamePieces: GamePiece[],
+	color: GamePieceColor,
+): boolean {
 	return gamePieces.some((piece) => {
-		return piece.boardPosition.x === position.x && piece.boardPosition.y === position.y
+		return (
+			piece.boardPosition &&
+			piece.boardPosition.x === position.x &&
+			piece.boardPosition.y === position.y &&
+			piece.color != color
+		)
 	})
 }

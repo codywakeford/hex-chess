@@ -1,22 +1,40 @@
 export {}
 
 declare global {
-	interface GameState {
+	interface GameInstance {
 		id: string
 
 		playerOne: Player
-		playerTwo?: Player
-		joinId: string
+		playerTwo: Player | null
+
+		boardState: BoardState
+	}
+
+	type GameInstanceCache = Map<string, GameInstance>
+
+	interface GameWebsocket {
+		data: Ref<any>
+		status: Ref<any>
+		close: function
+		open: function
+		send: any
+		ws: any
 	}
 
 	interface BoardState {
 		/**Contains information about the board piece, its position and so on. */
 		boardPieces: HexBoardPiece[]
 		gamePieces: GamePiece[]
-		selectedBoardPiece: HexBoardPiece
+		selectedBoardPiece: HexBoardPiece | null
 	}
+
+	interface GameState {
+		gameId: string
+		playerOne: Player
+		playerTwo: Player | null
+	}
+
 	interface Player {
-		name?: string
 		id: string
 		color: "white" | "black"
 	}
@@ -30,5 +48,9 @@ declare global {
 		position: number[]
 
 		color: string
+	}
+
+	interface InitialGameRequest {
+		gameData: GameInstance
 	}
 }

@@ -39,9 +39,10 @@ export function queenMoves(
 	position: BoardPosition,
 	boardPieces: HexBoardPiece[],
 	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ) {
-	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces)
-	const straightPaths = getStraightPaths(position, boardPieces, gamePieces)
+	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces, color)
+	const straightPaths = getStraightPaths(position, boardPieces, gamePieces, color)
 
 	return [...diagonalPaths, ...straightPaths]
 }
@@ -74,11 +75,7 @@ export function kingMoves(position: BoardPosition): BoardPosition[] {
 	return kingMoves
 }
 
-export function pawnMoves(
-	position: BoardPosition,
-	gamePieces: GamePiece[],
-	color: "white" | "black",
-) {
+export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], color: GamePieceColor) {
 	// add pawn attack moves
 	let pawnMoves: BoardPosition[] = []
 	let diagonalsToCheck = []
@@ -96,7 +93,7 @@ export function pawnMoves(
 	}
 
 	diagonalsToCheck.forEach((boardPosition) => {
-		if (positionContainsPiece(boardPosition, gamePieces)) {
+		if (positionContainsPiece(boardPosition, gamePieces, color)) {
 			pawnMoves.push(boardPosition)
 		}
 	})
@@ -108,13 +105,13 @@ export function pawnMoves(
 		})
 
 		let positionUp = iterateUp(position)
-		if (!positionContainsPiece(positionUp, gamePieces)) {
+		if (!positionContainsPiece(positionUp, gamePieces, color)) {
 			pawnMoves.push(positionUp)
 		}
 
 		if (canMoveTwice) {
 			positionUp = iterateUp(positionUp)
-			if (!positionContainsPiece(positionUp, gamePieces)) {
+			if (!positionContainsPiece(positionUp, gamePieces, color)) {
 				pawnMoves.push(positionUp)
 			}
 		}
@@ -126,13 +123,13 @@ export function pawnMoves(
 			return boardPosition.x === position.x && boardPosition.y === position.y
 		})
 		let positionDown = iterateDown(position)
-		if (!positionContainsPiece(positionDown, gamePieces)) {
+		if (!positionContainsPiece(positionDown, gamePieces, color)) {
 			pawnMoves.push(positionDown)
 		}
 
 		if (canMoveTwice) {
 			positionDown = iterateDown(positionDown)
-			if (!positionContainsPiece(positionDown, gamePieces)) {
+			if (!positionContainsPiece(positionDown, gamePieces, color)) {
 				pawnMoves.push(positionDown)
 			}
 		}
@@ -145,8 +142,9 @@ export function castleMoves(
 	position: BoardPosition,
 	boardPieces: HexBoardPiece[],
 	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ) {
-	const straightPaths = getStraightPaths(position, boardPieces, gamePieces)
+	const straightPaths = getStraightPaths(position, boardPieces, gamePieces, color)
 
 	return straightPaths
 }
@@ -155,8 +153,9 @@ export function bishopMoves(
 	position: BoardPosition,
 	boardPieces: HexBoardPiece[],
 	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ) {
-	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces)
+	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces, color)
 
 	return diagonalPaths
 }
