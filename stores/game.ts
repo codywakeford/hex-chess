@@ -67,17 +67,17 @@ export const useGameStore = defineStore("game", {
 			this.initWebsocket()
 		},
 
-		initWebsocket(gameId?: string) {
-			let id: string
+		initWebsocket(gameId?: string, playerId?: string) {
+			let _gameId: string
 
 			if (gameId) {
-				id = gameId
+				_gameId = gameId
 			} else {
-				id = this.game.gameId
+				_gameId = this.game.gameId
 			}
 
 			const { data, status, open, close, send, ws } = useWebSocket(
-				`ws://${location.host}/api/websocket?gameId=${id}`,
+				`ws://${location.host}/api/websocket?gameId=${_gameId}&playerId=${playerId}`,
 			)
 
 			this.websocket = {
@@ -210,7 +210,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		async joinGame(gameId: string) {
-			this.initWebsocket(gameId)
+			this.initWebsocket(gameId, this.player.id)
 
 			const gameInstance = await $fetch<GameInstance>(`/api/${gameId}`, {
 				method: "GET",

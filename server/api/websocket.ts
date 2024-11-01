@@ -3,11 +3,35 @@ import { gameInstances } from "~/server/cache"
 export default defineWebSocketHandler({
 	open(peer) {
 		const url = peer.request?.url
-		const gameId = url?.split("?gameId=", 2)[1]
+
+		if (!url) return
+
+		const urlObj = new URL(url)
+		const gameId = urlObj.searchParams.get("gameId")
+		const playerId = urlObj.searchParams.get("playerId")
 
 		if (!gameId) return
 
 		const game = gameInstances.get(gameId)
+
+		if (!game) return
+
+		if (playerId) {
+			const playerOneColor = game?.playerOne.color
+
+			let playerTwoColor: GamePieceColor
+
+			if (playerOneColor === "black") {
+				playerTwoColor = "white"
+			} else {
+				playerTwoColor = "black"
+			}
+
+			game.playerTwo = {
+				id: playerId,
+				color: playerTwoColor,
+			}
+		}
 
 		console.log("Joining room: " + gameId)
 		peer.subscribe(gameId)
