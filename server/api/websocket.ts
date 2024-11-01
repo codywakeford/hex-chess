@@ -27,10 +27,18 @@ export default defineWebSocketHandler({
 				playerTwoColor = "black"
 			}
 
-			game.playerTwo = {
+			const playerTwo = {
 				id: playerId,
 				color: playerTwoColor,
 			}
+			game.playerTwo = playerTwo
+
+			const payload: JoinResponse = {
+				type: "join",
+				playerTwo: playerTwo,
+			}
+
+			peer.publish(gameId, JSON.stringify(payload))
 		}
 
 		console.log("Joining room: " + gameId)
@@ -38,19 +46,19 @@ export default defineWebSocketHandler({
 	},
 
 	message(peer, message) {
-		const request = message.json() as WebsocketMessage
+		// TODO: verify move
+		const request = message.json() as WebsocketMessageRequest
 
-		console.log(message.json())
+		// Share message with subscribers
+		const payload = message.toString()
+		peer.publish(request.gameId, payload)
 
 		if (request.type === "move") {
-			// Send change to other player
-			// TODO: verify move
-			const payload = message.toString()
-
-			peer.publish(request.gameId, payload)
-
-			// Update server cache
 			moveGamePiece(request)
+		}
+
+		if (request.type === "kill") {
+			killGamePiece(request)
 		}
 	},
 
@@ -60,14 +68,44 @@ export default defineWebSocketHandler({
 	},
 })
 
-function moveGamePiece(request: UpdateMoveRequest) {
-	const game = gameInstances.get(request.gameId)
+function getPieceByBoardPosition(gameId: string, boardPosition: BoardPosition) {
+	const game = gameInstances.get(gameId)
+
 	const piece = game?.boardState.gamePieces.find((piece) => {
-		piece.boardPosition &&
-			request.pieceStart &&
-			piece.boardPosition.x === request.pieceStart.x &&
-			piece.boardPosition.y === request.pieceStart.y
+		return (
+			piece.boardPosition &&
+			piece.boardPosition.x === boardPosition.x &&
+			piece.boardPosition.y === boardPosition.y
+		)
 	})
+	console.log(piece)
+	return piece || undefined
+}
+
+function moveGamePiece(request: UpdateMoveRequest) {
+	const piece = getPieceByBoardPosition(request.gameId, request.pieceStart)
 
 	if (piece) piece.boardPosition = request.pieceEnd
+}
+
+function joinPlayerTwo() {}
+
+function killGamePiece(request: KillRequest) {
+	const game = gameInstances.get(request.gameId)
+	if (!game) {
+		console.error("[server] Error killing piece: Game not found")
+		return
+	}
+
+	const piece = getPieceByBoardPosition(request.gameId, request.piecePosition)
+
+	if (!piece) {
+		console.error("[server] Error killing piece: No piece found")
+		return
+	}
+
+	piece.alive = false
+	piece.boardPosition = null
+
+	gameInstances.set(request.gameId, game)
 }

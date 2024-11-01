@@ -8,6 +8,8 @@
 				v-model="gameId"
 			/>
 			<button @click="game.joinGame(gameId)">Join-Game</button>
+			<button>Leave Game</button>
+			<button @click="game.restartGame()">Restart Game</button>
 		</div>
 		<Board />
 	</div>
@@ -23,4 +25,8 @@ onMounted(() => {
 })
 </script>
 
-<style lang="sass"></style>
+<style lang="sass">
+html
+	background: #333
+	color: white
+</style>

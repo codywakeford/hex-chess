@@ -6,7 +6,8 @@
 // queen
 
 /**
- * If a pawn is in this position it gets two moves.
+ * If a pawn is in this position it gets two moves. These are the starting positions.
+ *
  * Hardcoded because what the hell.
  */
 const pawnDoublePositions = {
@@ -80,7 +81,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 	let pawnMoves: BoardPosition[] = []
 	let diagonalsToCheck = []
 
-	if (color === "black") {
+	if (color === "white") {
 		const topLeftHex = iterateTopLeft(position)
 		const topRightHex = iterateTopRight(position)
 
@@ -98,18 +99,20 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 		}
 	})
 
-	// if black move up // if on start pos move twice
-	if (color === "black") {
+	// if white move down // if on start pos move twice
+	if (color === "white") {
 		const canMoveTwice = pawnDoublePositions.black.some((boardPosition) => {
 			return boardPosition.x === position.x && boardPosition.y === position.y
 		})
 
 		let positionUp = iterateUp(position)
-		if (!positionContainsPiece(positionUp, gamePieces, color)) {
+		const positionUpContainsPiece = positionContainsPiece(positionUp, gamePieces, color)
+
+		if (!positionUpContainsPiece) {
 			pawnMoves.push(positionUp)
 		}
 
-		if (canMoveTwice) {
+		if (canMoveTwice && !positionUpContainsPiece) {
 			positionUp = iterateUp(positionUp)
 			if (!positionContainsPiece(positionUp, gamePieces, color)) {
 				pawnMoves.push(positionUp)
@@ -117,17 +120,20 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 		}
 	}
 
-	// if white move down // if on start pos move twice
-	if (color === "white") {
+	// if black move up // if on start pos move twice
+	if (color === "black") {
 		const canMoveTwice = pawnDoublePositions.white.some((boardPosition) => {
 			return boardPosition.x === position.x && boardPosition.y === position.y
 		})
+
 		let positionDown = iterateDown(position)
-		if (!positionContainsPiece(positionDown, gamePieces, color)) {
+		const positionDownContainsPiece = positionContainsPiece(positionDown, gamePieces, color)
+
+		if (!positionDownContainsPiece) {
 			pawnMoves.push(positionDown)
 		}
 
-		if (canMoveTwice) {
+		if (canMoveTwice && !positionDownContainsPiece) {
 			positionDown = iterateDown(positionDown)
 			if (!positionContainsPiece(positionDown, gamePieces, color)) {
 				pawnMoves.push(positionDown)

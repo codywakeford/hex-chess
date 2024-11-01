@@ -89,12 +89,12 @@ function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
 <style lang="sass" scoped>
 .piece
     position: absolute
-    transform: translate(7px, 60px)
+    transform: translate(-2px, 60px)
     z-index: 10
     transition: left 0.15s, bottom 0.15s
 
     img
         position: relative
         z-index: 10
-        height: 50px
+        height: 60px
 </style>

@@ -12,15 +12,6 @@ declare global {
 
 	type GameInstanceCache = Map<string, GameInstance>
 
-	interface GameWebsocket {
-		data: Ref<any>
-		status: Ref<any>
-		close: function
-		open: function
-		send: any
-		ws: any
-	}
-
 	interface BoardState {
 		/**Contains information about the board piece, its position and so on. */
 		boardPieces: HexBoardPiece[]

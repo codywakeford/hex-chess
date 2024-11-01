@@ -1,7 +1,16 @@
 export {}
 
 declare global {
-	type WebsocketMessage = UpdateMoveRequest | JoinRequest
+	interface GameWebsocket {
+		data: Ref<WebsocketMessageResponse>
+		status: Ref<any>
+		close: function
+		open: function
+		send: any
+		ws: any
+	}
+
+	type WebsocketMessageRequest = UpdateMoveRequest | JoinRequest | KillRequest
 
 	interface UpdateMoveRequest {
 		type: "move"
@@ -14,8 +23,17 @@ declare global {
 		gameId: string
 	}
 
-	interface JoinRequest {
-		type: "join"
+	interface KillRequest {
+		type: "kill"
+		piecePosition: BoardPosition
 		gameId: string
+	}
+
+	type WebsocketMessageResponse = WebsocketMessageRequest | JoinResponse
+
+	/**The response when player two joins your game. */
+	interface JoinResponse {
+		type: "join"
+		playerTwo: Player
 	}
 }

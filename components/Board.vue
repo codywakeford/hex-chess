@@ -60,7 +60,9 @@ onMounted(async () => {
 <style lang="sass" scoped>
 .board
 	position: relative
-	top: 1000px
+	height: 750px
+	width: 100%
+	margin-inline: auto
 
 
 .hexagon

@@ -37,6 +37,16 @@ const props = defineProps<Props>()
 <style lang="sass" scoped>
 .hexagon
     position: absolute
+    color: #222
+
+    &::before
+        content: ""
+        position: absolute
+        height: 100px
+        width: 90px
+        left: -15px
+        // background: red
+        z-index: 50
 
     &.selected
         .hex-piece

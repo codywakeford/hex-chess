@@ -36,6 +36,16 @@ export const useGameStore = defineStore("game", {
 			})
 		},
 
+		getGamePieceIndexFromPosition: (state) => (boardPosition: BoardPosition) => {
+			return state.board.gamePieces.findIndex((piece) => {
+				return (
+					piece.boardPosition &&
+					piece.boardPosition.x === boardPosition.x &&
+					piece.boardPosition.y === boardPosition.y
+				)
+			})
+		},
+
 		boardPieces(state) {
 			return state.board.boardPieces || []
 		},
@@ -52,6 +62,7 @@ export const useGameStore = defineStore("game", {
 			const gameInstance = await $fetch("/api/create-game", {
 				method: "post",
 			})
+
 			if (!gameInstance) return
 
 			this.board.gamePieces = gameInstance.boardState.gamePieces
@@ -63,7 +74,6 @@ export const useGameStore = defineStore("game", {
 				playerTwo: gameInstance.playerTwo,
 			}
 
-			console.log("herere")
 			this.initWebsocket()
 		},
 
@@ -83,37 +93,59 @@ export const useGameStore = defineStore("game", {
 			this.websocket = {
 				data,
 				status,
-				open: open,
+				open,
 				close,
 				send,
 				ws,
 			}
 
 			watch(data, (newValue) => {
-				const change = JSON.parse(newValue)
-				console.log("noticed changes", change)
+				const response = JSON.parse(newValue)
 
-				const {
-					pieceStart,
-					pieceEnd,
-				}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = change
+				if (response.type === "kill") {
+					const { piecePosition } = response
 
-				const oldPieceIndex = this.board.gamePieces.findIndex((piece) => {
-					return (
-						piece.boardPosition &&
-						pieceStart &&
-						piece.boardPosition.x === pieceStart.x &&
-						piece.boardPosition.y === pieceStart.y
-					)
-				})
+					const pieceIndex = this.getGamePieceIndexFromPosition(piecePosition)
 
-				if (oldPieceIndex !== -1) {
-					// Remove the piece from the board using splice
-					this.board.gamePieces[oldPieceIndex].boardPosition = pieceEnd
+					if (pieceIndex !== -1) {
+						this.board.gamePieces[pieceIndex].alive = false
+						this.board.gamePieces[pieceIndex].boardPosition = null
+					}
 				}
 
-				// this.board.gamePieces.push(pieceEnd)
+				if (response.type === "move") {
+					const {
+						pieceStart,
+						pieceEnd,
+					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
+
+					const oldPieceIndex = this.getGamePieceIndexFromPosition(pieceStart)
+
+					// const oldPieceIndex = this.board.gamePieces.findIndex((piece) => {
+					// 	return (
+					// 		piece.boardPosition &&
+					// 		pieceStart &&
+					// 		piece.boardPosition.x === pieceStart.x &&
+					// 		piece.boardPosition.y === pieceStart.y
+					// 	)
+					// })
+
+					if (oldPieceIndex !== -1) {
+						this.board.gamePieces[oldPieceIndex].boardPosition = pieceEnd
+					}
+				}
+
+				if (response.type === "join") {
+					this.game.playerTwo = response.playerTwo
+				}
 			})
+		},
+
+		restartGame() {
+			// this.game = {}
+			// this.websocket = {}
+			// this.board.gamePieces = {}
+			// this.init()
 		},
 
 		resetBoardHighlights() {
@@ -276,10 +308,20 @@ export const useGameStore = defineStore("game", {
 				)
 			})
 
-			if (pieceToKill) {
-				pieceToKill.alive = false
-				pieceToKill.boardPosition = null
+			if (!pieceToKill || !pieceToKill.boardPosition) return
+
+			let payload: KillRequest = {
+				type: "kill",
+				piecePosition: pieceToKill.boardPosition,
+				gameId: this.game.gameId,
 			}
+
+			console.log("here")
+			pieceToKill.alive = false
+			pieceToKill.boardPosition = null
+
+			const payloadString = JSON.stringify(payload)
+			this.websocket.send(payloadString)
 		},
 	},
 })

@@ -14,15 +14,8 @@
  * - All diagonal pieces are the same color.
  *
  */
-export const letters = "abcdefghijk"
 
-// Because of the abnormal coordinate system on a hex board
-// you need to take into account the starting position.
-// My solution is to use the center column as a source of truth.
-// In some places you know there are 5 tiles to the left of center for example.
-// You can then work out all the tiles in the line from the center.
-// You can also calculate how many tiles from any side a piece is given its x and y coords.
-// Though this calculation is different depending on where the piece is, hence all the if's.
+export const letters = "abcdefghijk"
 
 export function iterateUp(position: BoardPosition): BoardPosition {
 	return { x: position.x, y: position.y + 1 }
@@ -218,7 +211,7 @@ export function iterateDiagonalUpLeft(position: BoardPosition): BoardPosition {
 
 	let newPosition = { x: letters[index - 1], y: 0 }
 
-	if (index < 5) {
+	if (index <= 5) {
 		newPosition.y = position.y + 1
 	} else {
 		newPosition.y = position.y + 2
