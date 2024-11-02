@@ -9,11 +9,11 @@ export function initGameBoard(hexHeightValue: number) {
     const hexWidth = hexHeightValue
     const game = useGameStore()
 
-    let rowLength = 11
-    let numberOfRows = 11
+    let rowLength = 11 // at widest point
+    let numberOfRows = 11 // total
     let wrapAtColumn = 6
-    let column = 1
-    let hexPositionNameOffset = 0
+    let column = 1 // iterator start point
+    let hexPositionNameOffset = 0 // boardPosition name offsets as you iterate up the board
 
     // Iterate over each row
     for (let row = 1; row <= numberOfRows; row++) {
@@ -29,8 +29,9 @@ export function initGameBoard(hexHeightValue: number) {
             rowLength -= 2
         }
 
-        // For column in row assign a board position and get color
+        // For i in row assign a board position and get color
         for (; column <= rowLength; column++) {
+            /** [x, y]px */
             let hexPos = [...hexPosition]
 
             if (row > 6 && column < wrapAtColumn) {

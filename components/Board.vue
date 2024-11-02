@@ -5,7 +5,7 @@
             :color="hex.color"
             class="hexagon"
             :position="hex.boardPosition"
-            :height="100"
+            :height="112"
             :style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
             @click="handleHexClick(hex)"
         />
