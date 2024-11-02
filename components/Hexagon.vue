@@ -1,34 +1,42 @@
 <template>
-	<div
-		class="hexagon"
-		:class="{
-			selected: highlight === 'selected',
-			highlightMove: highlight === 'move',
-			attack: highlight === 'attack',
-		}"
-	>
-		<div class="hex-piece"></div>
-		<div class="hex-piece"></div>
-		<div class="hex-piece"></div>
-		<div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
-	</div>
+    <div
+        class="hexagon"
+        :class="{
+            selected: highlight === 'selected',
+            highlightMove: highlight === 'move',
+            attack: highlight === 'attack',
+        }"
+    >
+        <div class="hex-piece"></div>
+        <div class="hex-piece"></div>
+        <div class="hex-piece"></div>
+        <div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
+    </div>
 </template>
 
 <script setup lang="ts">
 const game = useGameStore()
 
 interface Props {
-	color: string
-	height: string
-	position: BoardPosition
+    color: string
+    height: number
+    position: BoardPosition
 }
 
 const highlight = computed(() => {
-	return boardPiece.value?.highlight || null
+    return boardPiece.value?.highlight || null
 })
 
 const boardPiece = computed(() => {
-	return game.getBoardPiece(props.position)
+    return game.getBoardPiece(props.position)
+})
+
+const hexHeight = computed(() => {
+    return `${props.height}px`
+})
+
+const halfHeight = computed(() => {
+    return `${props.height / 1.73}px`
 })
 
 const props = defineProps<Props>()
@@ -42,10 +50,9 @@ const props = defineProps<Props>()
     &::before
         content: ""
         position: absolute
-        height: 100px
-        width: 90px
+        height: v-bind(height)
+        width: v-bind(height)
         left: -15px
-        // background: red
         z-index: 50
 
     &.selected
@@ -79,8 +86,8 @@ const props = defineProps<Props>()
     .hex-piece
         position: absolute
         background: v-bind(color)
-        height: v-bind(height)
-        width: 58px
+        height: v-bind(hexHeight)
+        width: v-bind(halfHeight)
 
         &:first-child
             rotate: 120deg
