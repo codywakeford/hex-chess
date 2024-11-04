@@ -11,7 +11,7 @@
 			<button>Leave Game</button>
 			<button @click="game.restartGame()">Restart Game</button>
 		</div>
-		<div v-if="game.board.checkState.white !== null">{{ game.board.checkState }}</div>
+		<div>{{ game.board.checkState }}</div>
 		<Board :height="boardHeight" />
 	</div>
 </template>
@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 const game = useGameStore()
 const boardHeight = computed(() => {
-	return window.innerHeight
+	return (window.innerHeight / 3) * 2
 })
 const gameId = ref("")
 

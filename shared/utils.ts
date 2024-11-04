@@ -48,6 +48,9 @@ export function getAttackingPieceFromPath(
 
 	return null
 }
+export function getEnemyColor(color: GamePieceColor) {
+	return color === "white" ? "black" : "white"
+}
 
 export function getPathFromPiece(
 	gamePiece: GamePiece,
@@ -77,7 +80,8 @@ export function getPathFromPiece(
 		case "horse":
 			path = horseMoves(gamePiece.boardPosition, boardState.boardPieces)
 		case "king":
-			path = kingMoves(gamePiece.boardPosition)
+			const attackerPaths = getAllPlayerPaths(boardState, getEnemyColor(color))
+			path = kingMoves(gamePiece.boardPosition, attackerPaths)
 			break
 		case "pawn":
 			path = pawnMoves(gamePiece.boardPosition, boardState.gamePieces, color)

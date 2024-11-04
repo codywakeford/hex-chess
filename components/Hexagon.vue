@@ -1,42 +1,46 @@
 <template>
-    <div
-        class="hexagon"
-        :class="{
-            selected: highlight === 'selected',
-            highlightMove: highlight === 'move',
-            attack: highlight === 'attack',
-        }"
-    >
-        <div class="hex-piece"></div>
-        <div class="hex-piece"></div>
-        <div class="hex-piece"></div>
-        <div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
-    </div>
+	<div
+		class="hexagon"
+		:class="{
+			selected: highlight === 'selected',
+			highlightMove: highlight === 'move',
+			attack: highlight === 'attack',
+		}"
+	>
+		<div class="hex-piece"></div>
+		<div class="hex-piece"></div>
+		<div class="hex-piece"></div>
+		<div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
+	</div>
 </template>
 
 <script setup lang="ts">
 const game = useGameStore()
 
 interface Props {
-    color: string
-    height: number
-    position: BoardPosition
+	color: string
+	height: number
+	position: BoardPosition
 }
 
 const highlight = computed(() => {
-    return boardPiece.value?.highlight || null
+	return boardPiece.value?.highlight || null
 })
 
 const boardPiece = computed(() => {
-    return game.getBoardPiece(props.position)
+	return game.getBoardPiece(props.position)
 })
 
 const hexHeight = computed(() => {
-    return `${props.height}px`
+	return `${props.height}px`
+})
+
+const hexWidth = computed(() => {
+	return `${(2 / Math.sqrt(3)) * (props.height / 2) * 1.48}px`
 })
 
 const halfHeight = computed(() => {
-    return `${props.height / 1.73}px`
+	return `${props.height / 1.73}px`
 })
 
 const props = defineProps<Props>()
@@ -50,8 +54,8 @@ const props = defineProps<Props>()
     &::before
         content: ""
         position: absolute
-        height: v-bind(height)
-        width: v-bind(height)
+        height: v-bind(hexHeight)
+        width: v-bind(hexWidth)
         left: -15px
         z-index: 50
 

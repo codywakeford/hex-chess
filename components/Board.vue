@@ -5,7 +5,7 @@
 			:color="hex.color"
 			class="hexagon"
 			:position="hex.boardPosition"
-			:height="props.height / 11"
+			:height="hexHeight"
 			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
 			@click="handleHexClick(hex)"
 		/>
@@ -14,6 +14,7 @@
 			class="piece"
 			v-for="piece in gamePieces"
 			:piece="piece"
+			:height="(hexHeight / 3) * 2"
 		/>
 	</div>
 </template>
@@ -43,6 +44,7 @@ const selectedColors = ref(colors1)
 const letters = "abcdefghijkl"
 
 const hexHeight = computed(() => {
+	// return 250
 	return props.height / 11
 })
 
@@ -54,15 +56,19 @@ const props = defineProps<{
 	height: number
 }>()
 
+const boardHeight = computed(() => {
+	return `${props.height}px`
+})
+
 onMounted(async () => {
-	initGameBoard(150)
+	initGameBoard(hexHeight.value)
 })
 </script>
 
 <style lang="sass" scoped>
 .board
 	position: relative
-	height: 100vh
+	height: v-bind(boardHeight)
 	width: 100%
 	margin-inline: auto
 

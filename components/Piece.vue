@@ -11,6 +11,7 @@
 		<img
 			:src="imageSrc"
 			alt="Game Piece"
+			:height="props.height"
 		/>
 	</div>
 </template>
@@ -29,7 +30,7 @@ const bottom = computed(() => {
 	return position.value[1]
 })
 
-const props = defineProps<{ piece: GamePiece }>()
+const props = defineProps<{ piece: GamePiece; height: number }>()
 
 const imageSrc = ref("")
 
@@ -84,6 +85,10 @@ function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
 		}
 	}
 }
+
+const imageHeight = computed(() => {
+	return `${props.height}px`
+})
 </script>
 
 <style lang="sass" scoped>
@@ -96,5 +101,5 @@ function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
     img
         position: relative
         z-index: 10
-        height: 60px
+        height: v-bind(imageHeight)
 </style>

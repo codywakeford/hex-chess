@@ -147,10 +147,16 @@ export const useGameStore = defineStore("game", {
 		},
 
 		restartGame() {
-			// this.game = {}
-			// this.websocket = {}
-			// this.board.gamePieces = {}
-			// this.init()
+			;(this.game = {} as GameState),
+				(this.websocket = {} as GameWebsocket),
+				(this.player = {} as Player),
+				(this.board = {
+					checkState: { white: null, black: null },
+					gamePieces: [] as GamePiece[],
+					selectedBoardPiece: {} as HexBoardPiece | null,
+				} as BoardState)
+
+			this.init()
 		},
 
 		resetBoardHighlights() {
@@ -195,7 +201,8 @@ export const useGameStore = defineStore("game", {
 					break
 
 				case "king":
-					moves = kingMoves(position)
+					const attackerPaths = getAllPlayerPaths(this.board, piece.color)
+					moves = kingMoves(position, attackerPaths)
 					break
 
 				case "queen":
@@ -323,7 +330,6 @@ export const useGameStore = defineStore("game", {
 				gameId: this.game.gameId,
 			}
 
-			console.log("here")
 			pieceToKill.alive = false
 			pieceToKill.boardPosition = null
 
@@ -336,9 +342,19 @@ export const useGameStore = defineStore("game", {
 
 			const check = isCheck(this.board, defenderColor)
 
-			if (!check) return false
+			// // console.log(check)
+			// if (!check) {
+			// 	this.board.checkState[defenderColor] = null
+			// 	return // if not in check it cant be in checkmate : return
+			// }
 
-			// isCheckmate(this.boardState, defenderColor)
+			// this.board.checkState[defenderColor] = "check"
+
+			// const checkmate = isCheckmate(this.board, defenderColor)
+
+			// if (!checkmate) return // leave king in check
+
+			// this.board.checkState[defenderColor] = "checkmate"
 		},
 	},
 })

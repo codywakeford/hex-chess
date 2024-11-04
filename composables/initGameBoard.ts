@@ -6,20 +6,21 @@ const selectedColors = ref(colors1)
 // Create the hexagonal board // // https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cleanpng.com%2Fpng-hexagonal-chess-l-ancien-secret-de-la-fleur-de-vie-1933863%2F10.html&psig=AOvVaw2bmisPHcUYqEs7lNPYBjRF&ust=1730242812490000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCkkfOWsokDFQAAAAAdAAAAABB-
 
 export function initGameBoard(hexHeight: number) {
-	const hexWidth = (2 / Math.sqrt(3)) * (hexHeight / 2) * 2
+	const hexWidth = (2 / Math.sqrt(3)) * (hexHeight / 2) * 1.48
 
 	const game = useGameStore()
 
 	let rowLength = 11 // at widest point
 	let numberOfRows = 11 // total
 	let wrapAtColumn = 6
+	let column = 1 // iterator start point
 	let hexPositionNameOffset = 0 // boardPosition name offsets as you iterate up the board
 
 	// Iterate over each row
 	for (let row = 1; row <= numberOfRows; row++) {
+		column = 1
 		let hexPosition = [0, 0 + hexHeight * row]
 
-		// top section of board
 		if (row > 6) {
 			hexPositionNameOffset += 1
 			hexPosition[0] = hexWidth * (row - 6)
@@ -30,12 +31,12 @@ export function initGameBoard(hexHeight: number) {
 		}
 
 		// For i in row assign a board position and get color
-		for (let column = 1; column <= rowLength; column++) {
+		for (; column <= rowLength; column++) {
 			/** [x, y]px */
 			let hexPos = [...hexPosition]
 
 			if (row > 6 && column < wrapAtColumn) {
-				hexPos[1] += 0 - hexHeight * (row - 6)
+				hexPos[1] += 0 + -hexHeight * (row - 6)
 			}
 
 			// if larger than six, place the hex above and to the right, else place below and to the right
@@ -60,10 +61,10 @@ export function initGameBoard(hexHeight: number) {
 				highlight: null,
 			}
 
-			// Get row on horizontal plane, add 5 to offset negative numbers.
-			const horizontalRow = boardHex.position[1] / (hexHeight / 2) + 5
-
 			// set hex color
+			// Get row on horizontal plane, add 5 to offset negative numbers.
+			const horizontalRow = Math.round(boardHex.position[1] / (hexHeight / 2) + 5)
+
 			if (horizontalRow % 3 === 0) {
 				boardHex.color = selectedColors.value[0]
 			} else if (horizontalRow % 3 === 1) {

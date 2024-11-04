@@ -18,324 +18,324 @@
 export const letters = "abcdefghijk"
 
 export function iterateUp(position: BoardPosition): BoardPosition {
-    return { x: position.x, y: position.y + 1 }
+	return { x: position.x, y: position.y + 1 }
 }
 
 export function iterateDown(position: BoardPosition): BoardPosition {
-    return { x: position.x, y: position.y - 1 }
+	return { x: position.x, y: position.y - 1 }
 }
 
 export function iterateTopRight(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
-    let topRightPosition: BoardPosition
+	const index = letters.indexOf(position.x)
+	let topRightPosition: BoardPosition
 
-    let xPos: BoardPosition["x"]
-    let yPos: BoardPosition["y"]
+	let xPos: BoardPosition["x"]
+	let yPos: BoardPosition["y"]
 
-    if (index < 5) {
-        xPos = letters[index + 1]
-        yPos = position.y + 1
-    } else {
-        xPos = letters[index + 1]
-        yPos = position.y
-    }
-    topRightPosition = { x: xPos, y: yPos }
-    return topRightPosition
+	if (index < 5) {
+		xPos = letters[index + 1]
+		yPos = position.y + 1
+	} else {
+		xPos = letters[index + 1]
+		yPos = position.y
+	}
+	topRightPosition = { x: xPos, y: yPos }
+	return topRightPosition
 }
 
 export function iterateTopLeft(position: BoardPosition) {
-    const index = letters.indexOf(position.x)
-    let topLeftPosition: BoardPosition
+	const index = letters.indexOf(position.x)
+	let topLeftPosition: BoardPosition
 
-    let xPos: BoardPosition["x"]
-    let yPos: BoardPosition["y"]
+	let xPos: BoardPosition["x"]
+	let yPos: BoardPosition["y"]
 
-    if (index < 6) {
-        xPos = letters[index - 1]
-        yPos = position.y
-    } else {
-        xPos = letters[index - 1]
-        yPos = position.y + 1
-    }
+	if (index < 6) {
+		xPos = letters[index - 1]
+		yPos = position.y
+	} else {
+		xPos = letters[index - 1]
+		yPos = position.y + 1
+	}
 
-    topLeftPosition = { x: xPos, y: yPos }
-    return topLeftPosition
+	topLeftPosition = { x: xPos, y: yPos }
+	return topLeftPosition
 }
 
 export function iterateBottomLeft(position: BoardPosition) {
-    const index = letters.indexOf(position.x)
-    let bottomLeftPosition: BoardPosition
+	const index = letters.indexOf(position.x)
+	let bottomLeftPosition: BoardPosition
 
-    let xPos: BoardPosition["x"]
-    let yPos: BoardPosition["y"]
+	let xPos: BoardPosition["x"]
+	let yPos: BoardPosition["y"]
 
-    if (index < 6) {
-        xPos = letters[index - 1]
-        yPos = position.y - 1
-    } else {
-        xPos = letters[index - 1]
-        yPos = position.y
-    }
+	if (index < 6) {
+		xPos = letters[index - 1]
+		yPos = position.y - 1
+	} else {
+		xPos = letters[index - 1]
+		yPos = position.y
+	}
 
-    bottomLeftPosition = { x: xPos, y: yPos }
-    return bottomLeftPosition
+	bottomLeftPosition = { x: xPos, y: yPos }
+	return bottomLeftPosition
 }
 
 export function iterateBottomRight(position: BoardPosition) {
-    const index = letters.indexOf(position.x)
-    let bottomRightPosition: BoardPosition
+	const index = letters.indexOf(position.x)
+	let bottomRightPosition: BoardPosition
 
-    let xPos: BoardPosition["x"]
-    let yPos: BoardPosition["y"]
+	let xPos: BoardPosition["x"]
+	let yPos: BoardPosition["y"]
 
-    if (index < 5) {
-        xPos = letters[index + 1]
-        yPos = position.y
-    } else {
-        xPos = letters[index + 1]
-        yPos = position.y - 1
-    }
+	if (index < 5) {
+		xPos = letters[index + 1]
+		yPos = position.y
+	} else {
+		xPos = letters[index + 1]
+		yPos = position.y - 1
+	}
 
-    bottomRightPosition = { x: xPos, y: yPos }
-    return bottomRightPosition
+	bottomRightPosition = { x: xPos, y: yPos }
+	return bottomRightPosition
 }
 
 export function iterateHorizontalRight(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
-    const isEven = index + (1 % 2) === 0
+	const index = letters.indexOf(position.x)
+	const isEven = index + (1 % 2) === 0
 
-    let newPosition: BoardPosition = { x: letters[index + 2], y: 0 }
+	let newPosition: BoardPosition = { x: letters[index + 2], y: 0 }
 
-    if (!isEven && index < 5) {
-        // case where x === e
+	if (!isEven && index < 5) {
+		// case where x === e
 
-        if (position.x === "e") {
-            newPosition.y = position.y
+		if (position.x === "e") {
+			newPosition.y = position.y
 
-            return newPosition
-        }
+			return newPosition
+		}
 
-        newPosition.y = position.y + 1
+		newPosition.y = position.y + 1
 
-        return newPosition
-    } else if (!isEven && index >= 6) {
-        newPosition.y = position.y - 1
+		return newPosition
+	} else if (!isEven && index >= 6) {
+		newPosition.y = position.y - 1
 
-        return newPosition
-    }
+		return newPosition
+	}
 
-    if (isEven && index < 5) {
-        newPosition.y = position.y + 1
-        return newPosition
-    } else {
-        newPosition.y = position.y - 1
-        return newPosition
-    }
+	if (isEven && index < 5) {
+		newPosition.y = position.y + 1
+		return newPosition
+	} else {
+		newPosition.y = position.y - 1
+		return newPosition
+	}
 }
 
 export function iterateHorizontalLeft(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
-    const isEven = index + (1 % 2) === 0
+	const index = letters.indexOf(position.x)
+	const isEven = index + (1 % 2) === 0
 
-    let newPosition: BoardPosition = { x: letters[index - 2], y: 0 }
+	let newPosition: BoardPosition = { x: letters[index - 2], y: 0 }
 
-    if (!isEven && index < 5) {
-        newPosition.y = position.y - 1
+	if (!isEven && index < 5) {
+		newPosition.y = position.y - 1
 
-        return newPosition
-    } else if (!isEven && index >= 6) {
-        if (position.x === "g") {
-            newPosition.y = position.y
+		return newPosition
+	} else if (!isEven && index >= 6) {
+		if (position.x === "g") {
+			newPosition.y = position.y
 
-            return newPosition
-        }
+			return newPosition
+		}
 
-        newPosition.y = position.y + 1
+		newPosition.y = position.y + 1
 
-        return newPosition
-    }
+		return newPosition
+	}
 
-    if (isEven && index <= 5) {
-        newPosition.y = position.y - 1
-        return newPosition
-    } else {
-        newPosition.y = position.y - 1
-        return newPosition
-    }
+	if (isEven && index <= 5) {
+		newPosition.y = position.y - 1
+		return newPosition
+	} else {
+		newPosition.y = position.y - 1
+		return newPosition
+	}
 }
 
 export function iterateDiagonalDownRight(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
+	const index = letters.indexOf(position.x)
 
-    let newPosition = { x: letters[index + 1], y: 0 }
+	let newPosition = { x: letters[index + 1], y: 0 }
 
-    if (index < 5) {
-        newPosition.y = position.y - 1
-    } else {
-        newPosition.y = position.y - 2
-    }
+	if (index < 5) {
+		newPosition.y = position.y - 1
+	} else {
+		newPosition.y = position.y - 2
+	}
 
-    return newPosition
+	return newPosition
 }
 
 export function iterateDiagonalDownLeft(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
+	const index = letters.indexOf(position.x)
 
-    let newPosition = { x: letters[index - 1], y: 0 }
+	let newPosition = { x: letters[index - 1], y: 0 }
 
-    if (index < 6) {
-        newPosition.y = position.y - 2
-    } else {
-        newPosition.y = position.y - 1
-    }
+	if (index < 6) {
+		newPosition.y = position.y - 2
+	} else {
+		newPosition.y = position.y - 1
+	}
 
-    return newPosition
+	return newPosition
 }
 
 export function iterateDiagonalUpRight(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
+	const index = letters.indexOf(position.x)
 
-    let newPosition = { x: letters[index + 1], y: 0 }
+	let newPosition = { x: letters[index + 1], y: 0 }
 
-    if (index < 5) {
-        newPosition.y = position.y + 2
-    } else {
-        newPosition.y = position.y + 1
-    }
+	if (index < 5) {
+		newPosition.y = position.y + 2
+	} else {
+		newPosition.y = position.y + 1
+	}
 
-    return newPosition
+	return newPosition
 }
 
 export function iterateDiagonalUpLeft(position: BoardPosition): BoardPosition {
-    const index = letters.indexOf(position.x)
+	const index = letters.indexOf(position.x)
 
-    let newPosition = { x: letters[index - 1], y: 0 }
+	let newPosition = { x: letters[index - 1], y: 0 }
 
-    if (index <= 5) {
-        newPosition.y = position.y + 1
-    } else {
-        newPosition.y = position.y + 2
-    }
+	if (index <= 5) {
+		newPosition.y = position.y + 1
+	} else {
+		newPosition.y = position.y + 2
+	}
 
-    return newPosition
+	return newPosition
 }
 
 export function getStraightPaths(
-    position: BoardPosition,
-    boardPieces: HexBoardPiece[],
-    gamePieces: GamePiece[],
-    color: GamePieceColor
+	position: BoardPosition,
+	boardPieces: HexBoardPiece[],
+	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ): BoardPosition[] {
-    /**
-     * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
-     */
-    let directionFunctions = [
-        iterateBottomRight,
-        iterateBottomLeft,
-        iterateTopLeft,
-        iterateTopRight,
-        iterateDown,
-        iterateUp,
-    ]
+	/**
+	 * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
+	 */
+	let directionFunctions = [
+		iterateBottomRight,
+		iterateBottomLeft,
+		iterateTopLeft,
+		iterateTopRight,
+		iterateDown,
+		iterateUp,
+	]
 
-    let diagonalHexagons: BoardPosition[] = []
+	let diagonalHexagons: BoardPosition[] = []
 
-    directionFunctions.forEach((_function) => {
-        let cursorPos = position
-        let isOutOfBounds = false
+	directionFunctions.forEach((_function) => {
+		let cursorPos = position
+		let isOutOfBounds = false
 
-        while (!isOutOfBounds) {
-            diagonalHexagons.push(cursorPos)
-            cursorPos = _function(cursorPos)
+		while (!isOutOfBounds) {
+			diagonalHexagons.push(cursorPos)
+			cursorPos = _function(cursorPos)
 
-            isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-            const side = positionContainsPiece(cursorPos, gamePieces, color)
+			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
+			const side = positionContainsPiece(cursorPos, gamePieces, color)
 
-            if (side === "enemy") {
-                diagonalHexagons.push(cursorPos)
-                break
-            } else if (side === "ally") {
-                break
-            }
-        }
-    })
+			if (side === "enemy") {
+				diagonalHexagons.push(cursorPos)
+				break
+			} else if (side === "ally") {
+				break
+			}
+		}
+	})
 
-    return diagonalHexagons
+	return diagonalHexagons
 }
 
 export function getDiagonalPaths(
-    position: BoardPosition,
-    boardPieces: HexBoardPiece[],
-    gamePieces: GamePiece[],
-    color: GamePieceColor
+	position: BoardPosition,
+	boardPieces: HexBoardPiece[],
+	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ): BoardPosition[] {
-    /**
-     * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
-     */
-    let directionFunctions = [
-        iterateHorizontalRight,
-        iterateHorizontalLeft,
-        iterateDiagonalDownRight,
-        iterateDiagonalDownLeft,
-        iterateDiagonalUpRight,
-        iterateDiagonalUpLeft,
-    ]
+	/**
+	 * each of these functions will return the next boardPiece in a particular direction until hitting a gamePiece.
+	 */
+	let directionFunctions = [
+		iterateHorizontalRight,
+		iterateHorizontalLeft,
+		iterateDiagonalDownRight,
+		iterateDiagonalDownLeft,
+		iterateDiagonalUpRight,
+		iterateDiagonalUpLeft,
+	]
 
-    let diagonalHexagons: BoardPosition[] = []
+	let diagonalHexagons: BoardPosition[] = []
 
-    directionFunctions.forEach((_function) => {
-        let cursorPos = position
+	directionFunctions.forEach((_function) => {
+		let cursorPos = position
 
-        let isOutOfBounds = false
-        while (!isOutOfBounds) {
-            diagonalHexagons.push(cursorPos)
-            cursorPos = _function(cursorPos)
+		let isOutOfBounds = false
+		while (!isOutOfBounds) {
+			diagonalHexagons.push(cursorPos)
+			cursorPos = _function(cursorPos)
 
-            isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-            const side = positionContainsPiece(cursorPos, gamePieces, color)
+			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
+			const side = positionContainsPiece(cursorPos, gamePieces, color)
 
-            if (side === "enemy") {
-                diagonalHexagons.push(cursorPos)
-                break
-            } else if (side === "ally") {
-                break
-            }
-        }
-    })
+			if (side === "enemy") {
+				diagonalHexagons.push(cursorPos)
+				break
+			} else if (side === "ally") {
+				break
+			}
+		}
+	})
 
-    return diagonalHexagons
+	return diagonalHexagons
 }
 
 /**
  * Check if there's any matching board piece //
  */
 export function outOfBounds(position: BoardPosition, boardPieces: HexBoardPiece[]): boolean {
-    const isInBounds = boardPieces.some(
-        (boardPiece) =>
-            boardPiece.boardPosition.x === position.x && boardPiece.boardPosition.y === position.y
-    )
+	// const boardPiecesNonReactive = [...boardPieces] // to prevent reactivity loop
 
-    return !isInBounds
+	const isInBounds = boardPieces.some(
+		(boardPiece) =>
+			boardPiece.boardPosition.x === position.x && boardPiece.boardPosition.y === position.y,
+	)
+
+	return !isInBounds
 }
 
 export function positionContainsPiece(
-    position: BoardPosition,
-    gamePieces: GamePiece[],
-    color: GamePieceColor
+	position: BoardPosition,
+	gamePieces: GamePiece[],
+	color: GamePieceColor,
 ): Side {
-    const containsPiece = gamePieces.find((piece) => {
-        return (
-            piece.boardPosition &&
-            piece.boardPosition.x === position.x &&
-            piece.boardPosition.y === position.y
-        )
-    })
+	const containsPiece = gamePieces.find((piece) => {
+		return (
+			piece.boardPosition &&
+			piece.boardPosition.x === position.x &&
+			piece.boardPosition.y === position.y
+		)
+	})
 
-    if (!containsPiece) return null
+	if (!containsPiece) return null
 
-    if (containsPiece.color === color) {
-        return "ally"
-    }
+	if (containsPiece.color === color) return "ally"
 
-    return "enemy"
+	return "enemy"
 }
