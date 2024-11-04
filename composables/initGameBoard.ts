@@ -5,73 +5,74 @@ const selectedColors = ref(colors1)
 
 // Create the hexagonal board // // https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cleanpng.com%2Fpng-hexagonal-chess-l-ancien-secret-de-la-fleur-de-vie-1933863%2F10.html&psig=AOvVaw2bmisPHcUYqEs7lNPYBjRF&ust=1730242812490000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCkkfOWsokDFQAAAAAdAAAAABB-
 
-export function initGameBoard(hexHeightValue: number) {
-    const hexWidth = hexHeightValue
-    const game = useGameStore()
+export function initGameBoard(hexHeight: number) {
+	const hexWidth = (2 / Math.sqrt(3)) * (hexHeight / 2) * 2
 
-    let rowLength = 11 // at widest point
-    let numberOfRows = 11 // total
-    let wrapAtColumn = 6
-    let column = 1 // iterator start point
-    let hexPositionNameOffset = 0 // boardPosition name offsets as you iterate up the board
+	const game = useGameStore()
 
-    // Iterate over each row
-    for (let row = 1; row <= numberOfRows; row++) {
-        column = 1
-        let hexPosition = [0, 0 + hexHeightValue * row]
+	let rowLength = 11 // at widest point
+	let numberOfRows = 11 // total
+	let wrapAtColumn = 6
+	let hexPositionNameOffset = 0 // boardPosition name offsets as you iterate up the board
 
-        if (row > 6) {
-            hexPositionNameOffset += 1
-            hexPosition[0] = hexWidth * (row - 6)
-            hexPosition[1] += 0 + (hexHeightValue / 2) * (row - 6)
+	// Iterate over each row
+	for (let row = 1; row <= numberOfRows; row++) {
+		let hexPosition = [0, 0 + hexHeight * row]
 
-            wrapAtColumn -= 1
-            rowLength -= 2
-        }
+		// top section of board
+		if (row > 6) {
+			hexPositionNameOffset += 1
+			hexPosition[0] = hexWidth * (row - 6)
+			hexPosition[1] += 0 + (hexHeight / 2) * (row - 6)
 
-        // For i in row assign a board position and get color
-        for (; column <= rowLength; column++) {
-            /** [x, y]px */
-            let hexPos = [...hexPosition]
+			wrapAtColumn -= 1
+			rowLength -= 2
+		}
 
-            if (row > 6 && column < wrapAtColumn) {
-                hexPos[1] += 0 + -hexHeightValue * (row - 6)
-            }
+		// For i in row assign a board position and get color
+		for (let column = 1; column <= rowLength; column++) {
+			/** [x, y]px */
+			let hexPos = [...hexPosition]
 
-            // if larger than six, place the hex above and to the right, else place below and to the right
-            if (row > 6 && column < wrapAtColumn) {
-                hexPos[1] -= -hexHeightValue * 2 * (-column / 4)
-            } else if (column >= wrapAtColumn) {
-                hexPos[1] += (hexHeightValue / 2) * (column - 12)
-            } else {
-                hexPos[1] += (-hexHeightValue / 2) * column
-            }
+			if (row > 6 && column < wrapAtColumn) {
+				hexPos[1] += 0 - hexHeight * (row - 6)
+			}
 
-            // increment
-            hexPos[0] += hexWidth * column
+			// if larger than six, place the hex above and to the right, else place below and to the right
+			if (row > 6 && column < wrapAtColumn) {
+				hexPos[1] -= -hexHeight * 2 * (-column / 4)
+			} else if (column >= wrapAtColumn) {
+				hexPos[1] += (hexHeight / 2) * (column - 12)
+			} else {
+				hexPos[1] += (-hexHeight / 2) * column
+			}
 
-            const boardHex: HexBoardPiece = {
-                boardPosition: {
-                    x: `${letters[column - 1 + hexPositionNameOffset]}`,
-                    y: row,
-                },
-                position: hexPos,
-                color: "",
-                highlight: null,
-            }
+			// increment x by 1 hex
+			hexPos[0] += hexWidth * column
 
-            // Get row on horizontal plane, add 5 to offset negative numbers.
-            const horizontalRow = boardHex.position[1] / (hexHeightValue / 2) + 5
+			const boardHex: HexBoardPiece = {
+				boardPosition: {
+					x: `${letters[column - 1 + hexPositionNameOffset]}`,
+					y: row,
+				},
+				position: hexPos,
+				color: "",
+				highlight: null,
+			}
 
-            if (horizontalRow % 3 === 0) {
-                boardHex.color = selectedColors.value[0]
-            } else if (horizontalRow % 3 === 1) {
-                boardHex.color = selectedColors.value[1]
-            } else {
-                boardHex.color = selectedColors.value[2]
-            }
+			// Get row on horizontal plane, add 5 to offset negative numbers.
+			const horizontalRow = boardHex.position[1] / (hexHeight / 2) + 5
 
-            game.addBoardPiece(boardHex)
-        }
-    }
+			// set hex color
+			if (horizontalRow % 3 === 0) {
+				boardHex.color = selectedColors.value[0]
+			} else if (horizontalRow % 3 === 1) {
+				boardHex.color = selectedColors.value[1]
+			} else {
+				boardHex.color = selectedColors.value[2]
+			}
+
+			game.addBoardPiece(boardHex)
+		}
+	}
 }

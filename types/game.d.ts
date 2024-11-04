@@ -17,12 +17,14 @@ declare global {
 		boardPieces: HexBoardPiece[]
 		gamePieces: GamePiece[]
 		selectedBoardPiece: HexBoardPiece | null
+		checkState: CheckState
 	}
 
 	interface GameState {
 		gameId: string
 		playerOne: Player
 		playerTwo: Player | null
+		turn: GamePieceColor
 	}
 
 	interface Player {
@@ -39,6 +41,11 @@ declare global {
 		position: number[]
 
 		color: string
+	}
+
+	interface checkState {
+		white: null | "check" | "checkmate"
+		black: null | "check" | "checkmate"
 	}
 
 	interface InitialGameRequest {

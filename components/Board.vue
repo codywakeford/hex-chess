@@ -1,17 +1,21 @@
 <template>
-    <div class="board">
-        <Hexagon
-            v-for="(hex, index) in boardHexes"
-            :color="hex.color"
-            class="hexagon"
-            :position="hex.boardPosition"
-            :height="112"
-            :style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
-            @click="handleHexClick(hex)"
-        />
+	<div class="board">
+		<Hexagon
+			v-for="(hex, index) in boardHexes"
+			:color="hex.color"
+			class="hexagon"
+			:position="hex.boardPosition"
+			:height="props.height / 11"
+			:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
+			@click="handleHexClick(hex)"
+		/>
 
-        <Piece class="piece" v-for="piece in gamePieces" :piece="piece" />
-    </div>
+		<Piece
+			class="piece"
+			v-for="piece in gamePieces"
+			:piece="piece"
+		/>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -20,35 +24,38 @@ const colors = ["#999", "#666", "#444"]
 const colors1 = ["#d18b47", "#e8ab6f", "#ffce9e"]
 
 const gamePieces = computed(() => {
-    return game.gamePieces
+	return game.gamePieces
 })
 const boardHexes = computed(() => {
-    return game.boardPieces
+	return game.boardPieces
 })
 
 function handleHexClick(hex: HexBoardPiece) {
-    if (hex.highlight === "move" || hex.highlight === "attack") {
-        game.movePiece(hex.boardPosition)
-        return
-    }
+	if (hex.highlight === "move" || hex.highlight === "attack") {
+		game.movePiece(hex.boardPosition)
+		return
+	}
 
-    selectBoardPiece(hex)
+	selectBoardPiece(hex)
 }
 
 const selectedColors = ref(colors1)
 const letters = "abcdefghijkl"
 
-const hexHeight = 100
+const hexHeight = computed(() => {
+	return props.height / 11
+})
 
 function selectBoardPiece(boardPiece: HexBoardPiece) {
-    game.selectBoardPiece(boardPiece)
+	game.selectBoardPiece(boardPiece)
 }
 
-const props = defineProps<{}>()
+const props = defineProps<{
+	height: number
+}>()
 
 onMounted(async () => {
-    const boardHeight = window.innerWidth - 100
-    initGameBoard(hexHeight)
+	initGameBoard(150)
 })
 </script>
 
@@ -58,7 +65,6 @@ onMounted(async () => {
 	height: 100vh
 	width: 100%
 	margin-inline: auto
-
 
 .hexagon
 	cursor: pointer
