@@ -5,7 +5,6 @@
 		:style="{
 			left: `${left}px`,
 			bottom: `${bottom}px`,
-			transition: 'left 0.3s bottom 0.3s',
 		}"
 	>
 		<img
@@ -86,6 +85,14 @@ function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
 	}
 }
 
+const offsetTop = computed(() => {
+	return `${props.height}px`
+})
+
+const offsetLeft = computed(() => {
+	return `-${props.height / 12}px`
+})
+
 const imageHeight = computed(() => {
 	return `${props.height}px`
 })
@@ -94,12 +101,13 @@ const imageHeight = computed(() => {
 <style lang="sass" scoped>
 .piece
     position: absolute
-    transform: translate(-2px, 60px)
-    z-index: 10
+    z-index: 1000
     transition: left 0.15s, bottom 0.15s
+    pointer-events: none
 
     img
         position: relative
-        z-index: 10
         height: v-bind(imageHeight)
+        top: v-bind(offsetTop)
+        left: v-bind(offsetLeft)
 </style>

@@ -48,7 +48,7 @@ export function queenMoves(
 	return [...diagonalPaths, ...straightPaths]
 }
 
-export function kingMoves(position: BoardPosition, enemyPaths: BoardPosition[]): BoardPosition[] {
+export function kingMoves(position: BoardPosition): BoardPosition[] {
 	let kingMoves: BoardPosition[] = []
 
 	// const enemyColor = defendingColor === "white" ? "black" : "white"
@@ -72,13 +72,7 @@ export function kingMoves(position: BoardPosition, enemyPaths: BoardPosition[]):
 	moveFunctions.forEach((_function) => {
 		const newPosition = _function(position)
 
-		const enemyCanReachPosition = enemyPaths.some((boardPosition) => {
-			return boardPosition.x === newPosition.x && boardPosition.y === newPosition.y
-		})
-
-		if (!enemyCanReachPosition) {
-			kingMoves.push(newPosition)
-		}
+		kingMoves.push(newPosition)
 	})
 
 	return kingMoves

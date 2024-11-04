@@ -17,7 +17,7 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 	}
 
 	const enemyPaths = getAllPlayerPaths(boardState, attackerColor)
-	const kingsMoves = kingMoves(defenderKing.boardPosition, enemyPaths)
+	const kingsMoves = kingMoves(defenderKing.boardPosition)
 
 	const attackingPiece = getAttackingPieceFromPath(
 		defenderKing.boardPosition,
@@ -68,7 +68,6 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 	})
 
 	if (attackerCanBeBlocked) return false
-
 	return true
 }
 

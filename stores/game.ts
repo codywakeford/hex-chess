@@ -126,15 +126,6 @@ export const useGameStore = defineStore("game", {
 
 					const oldPieceIndex = this.getGamePieceIndexFromPosition(pieceStart)
 
-					// const oldPieceIndex = this.board.gamePieces.findIndex((piece) => {
-					// 	return (
-					// 		piece.boardPosition &&
-					// 		pieceStart &&
-					// 		piece.boardPosition.x === pieceStart.x &&
-					// 		piece.boardPosition.y === pieceStart.y
-					// 	)
-					// })
-
 					if (oldPieceIndex !== -1) {
 						this.board.gamePieces[oldPieceIndex].boardPosition = pieceEnd
 					}
@@ -147,16 +138,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		restartGame() {
-			;(this.game = {} as GameState),
-				(this.websocket = {} as GameWebsocket),
-				(this.player = {} as Player),
-				(this.board = {
-					checkState: { white: null, black: null },
-					gamePieces: [] as GamePiece[],
-					selectedBoardPiece: {} as HexBoardPiece | null,
-				} as BoardState)
-
-			this.init()
+			;(this.game = {} as GameState), (this.websocket = {} as GameWebsocket), this.init()
 		},
 
 		resetBoardHighlights() {
@@ -201,8 +183,8 @@ export const useGameStore = defineStore("game", {
 					break
 
 				case "king":
-					const attackerPaths = getAllPlayerPaths(this.board, piece.color)
-					moves = kingMoves(position, attackerPaths)
+					// const attackerPaths = getAllPlayerPaths(this.board, piece.color)
+					moves = kingMoves(position)
 					break
 
 				case "queen":
@@ -275,7 +257,7 @@ export const useGameStore = defineStore("game", {
 			}
 		},
 
-		movePiece(position: BoardPosition) {
+		async movePiece(position: BoardPosition) {
 			const selectedBoardPiece = this.board.selectedBoardPiece
 			if (!selectedBoardPiece) return
 
@@ -293,6 +275,9 @@ export const useGameStore = defineStore("game", {
 
 				if (side === "enemy") {
 					this.kill(position)
+					new Audio("/capture.mp3").play()
+				} else {
+					new Audio("/move-self.mp3").play()
 				}
 
 				piece.boardPosition = position
@@ -310,7 +295,7 @@ export const useGameStore = defineStore("game", {
 			this.websocket.send(payloadString)
 			this.resetBoardHighlights()
 
-			this.checkCheck() // check if enemy is now in check
+			this.checkCheck() // TODO: check if enemy is now in check
 		},
 
 		kill(position: BoardPosition) {
@@ -340,7 +325,9 @@ export const useGameStore = defineStore("game", {
 		checkCheck() {
 			const defenderColor = this.game.turn === "white" ? "black" : "white"
 
-			const check = isCheck(this.board, defenderColor)
+			// TODO: Make more efficient
+
+			// const check = isCheck(this.board, defenderColor)
 
 			// // console.log(check)
 			// if (!check) {
