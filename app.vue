@@ -32,6 +32,8 @@
 				>Here</nuxt-link
 			>
 		</p>
+
+		<pre>{{ game.board.paths }}</pre>
 	</main>
 </template>
 

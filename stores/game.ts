@@ -14,10 +14,16 @@ export const useGameStore = defineStore("game", {
 			gamePieces: new Map() as GamePieceMap,
 			boardPieces: new Map() as BoardPieceMap,
 			selectedBoardPiece: {} as BoardPiece | null,
-			paths: {
-				white: new Set() as Set<BoardPosition>,
-				black: new Set() as Set<BoardPosition>,
-			},
+			latestMoves: {
+				white: {
+					to: null,
+					from: null,
+				},
+				black: {
+					to: null,
+					from: null,
+				},
+			} as LatestMoves,
 		} as BoardState,
 
 		selectedColors: classicBoard as string[],
@@ -40,18 +46,6 @@ export const useGameStore = defineStore("game", {
 
 		boardPiece: (state) => (boardPosition: BoardPosition) => {
 			return state.board.boardPieces.get(stringPos(boardPosition))
-		},
-
-		paths: (state) => (color: GamePieceColor) => {
-			if (state.board.paths[color].size) {
-				return state.board.paths[color]
-			}
-
-			const path = getAllPlayerPaths(state.board, color)
-
-			state.board.paths[color] = new Set(path)
-
-			return state.board.paths[color]
 		},
 	},
 
@@ -181,38 +175,11 @@ export const useGameStore = defineStore("game", {
 				return
 			}
 
-			let moves: BoardPosition[] = []
+			const path = getPathFromPiece(piece, this.board)
 
-			switch (piece.type) {
-				case "castle":
-					moves = castleMoves(boardPosition, this.board, piece.color)
-					break
+			if (!path) return // no moves available
 
-				case "pawn":
-					moves = pawnMoves(boardPosition, this.board, piece.color)
-					break
-
-				case "king":
-					moves = kingMoves(boardPosition, this.board, piece.color)
-					break
-
-				case "queen":
-					moves = queenMoves(boardPosition, this.board, piece.color)
-					break
-
-				case "bishop":
-					moves = bishopMoves(boardPosition, this.board, piece.color)
-					break
-
-				case "horse":
-					moves = horseMoves(boardPosition, this.board)
-					break
-
-				default:
-					break
-			}
-
-			moves.forEach((boardPosition) => {
+			path.forEach((boardPosition) => {
 				const hex = this.boardPiece(boardPosition)
 
 				if (hex) {
@@ -267,9 +234,19 @@ export const useGameStore = defineStore("game", {
 			}
 		},
 
+		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition) {
+			const piece = this.gamePiece(fromPos)
+
+			if (!piece) throw new Error("No piece found.")
+
+			this.board.latestMoves[piece.color].from = fromPos
+			this.board.latestMoves[piece.color].to = toPos
+		},
+
 		async movePiece(toPosition: BoardPosition) {
 			const selectedBoardPiece = this.board.selectedBoardPiece
 			const fromPosition = selectedBoardPiece?.boardPosition
+			this.updateLatestMove(fromPosition, toPosition)
 
 			const boardPiece = this.boardPiece(fromPosition)
 			const gamePiece = this.gamePiece(fromPosition)
@@ -289,9 +266,9 @@ export const useGameStore = defineStore("game", {
 
 			if (side === "enemy") {
 				this.kill(toPosition)
-				new Audio("/capture.mp3").play()
+				new Audio("/capture.mp3").play().catch()
 			} else {
-				new Audio("/move-self.mp3").play()
+				new Audio("/move-self.mp3").play().catch()
 			}
 
 			gamePiece.boardPosition = toPosition
@@ -313,9 +290,9 @@ export const useGameStore = defineStore("game", {
 			this.websocket.send(payloadString)
 			this.resetBoardHighlights()
 
-			this.checkCheck() // TODO: check if enemy is now in check
+			this.checkCheck(toPosition) // TODO: check if enemy is now in check
 
-			this.onMove()
+			// this.onMove()
 		},
 
 		kill(position: BoardPosition) {
@@ -340,10 +317,10 @@ export const useGameStore = defineStore("game", {
 			this.websocket.send(payloadString)
 		},
 
-		checkCheck() {
+		checkCheck(lastMove: BoardPosition) {
 			const defenderColor = this.game.turn === "white" ? "black" : "white"
 
-			const check = isCheck(this.board, defenderColor)
+			const check = isCheck(this.board, defenderColor, lastMove)
 
 			if (!check) {
 				this.board.checkState[defenderColor] = null
@@ -354,7 +331,7 @@ export const useGameStore = defineStore("game", {
 
 			const checkmate = isCheckmate(this.board, defenderColor)
 
-			console.log(checkmate)
+			// console.log(checkmate)
 
 			if (!checkmate) return // leave king in check
 

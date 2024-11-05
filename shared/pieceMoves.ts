@@ -1,10 +1,3 @@
-// castle
-// horse
-// bishop
-// pawn
-// king
-// queen
-
 /**
  * If a pawn is in this position it gets two moves. These are the starting positions.
  *
@@ -49,10 +42,8 @@ export function kingMoves(
 	color: GamePieceColor,
 ): BoardPosition[] {
 	let kingMoves: BoardPosition[] = []
-	const game = useGameStore()
 
-	// const enemyColor = defendingColor === "white" ? "black" : "white"
-
+	
 	// one move in any direction
 	const moveFunctions = [
 		iterateBottomRight,
@@ -69,6 +60,7 @@ export function kingMoves(
 		iterateDiagonalUpLeft,
 	]
 
+	// one move in every direction
 	moveFunctions.forEach((_function) => {
 		const newPosition = _function(position)
 

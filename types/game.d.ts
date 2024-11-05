@@ -18,12 +18,7 @@ declare global {
 		gamePieces: GamePieceMap
 		selectedBoardPiece: HexBoardPiece | null
 		checkState: CheckState
-
-		/**Stores path calculations. Refreshed every turn. */
-		paths: {
-			white: Set<BoardPosition>
-			black: Set<BoardPosition>
-		}
+		latestMoves: LatestMoves
 	}
 
 	/** Sent Apon Create Request */
@@ -46,6 +41,17 @@ declare global {
 	interface Player {
 		id: string
 		color: "white" | "black"
+	}
+
+	interface LatestMoves {
+		white: {
+			to: {}
+			from: {}
+		}
+		black: {
+			to: {}
+			from: {}
+		}
 	}
 
 	interface BoardPiece {
