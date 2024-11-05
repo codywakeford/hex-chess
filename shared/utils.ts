@@ -59,11 +59,11 @@ export function getPathBetweenPositions(
 		iterateDiagonalUpLeft,
 	]
 	let positionFound = false
-	let path = new Set()
+	let path = new Set() as Set<BoardPosition>
 
 	// Try each direction until a path to position2 is found
 	for (const _function of moveFunctions) {
-		let cursorPos = position1
+		let cursorPos: BoardPosition = position1
 		path = new Set()
 
 		while (!positionFound) {
@@ -164,7 +164,7 @@ export function getPathFromPiece(gamePiece: GamePiece, boardState: BoardState) {
 export function getAllPlayerPaths(
 	boardState: BoardState,
 	color: GamePieceColor,
-	omitType: GamePiece["type"],
+	omitType?: GamePiece["type"],
 ) {
 	const playerPieces = getPlayerPieces(boardState, color)
 	const paths = new Set<string>()

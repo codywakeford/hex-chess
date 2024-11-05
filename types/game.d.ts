@@ -45,12 +45,12 @@ declare global {
 
 	interface LatestMoves {
 		white: {
-			to: {}
-			from: {}
+			to: BoardPosition | null
+			from: BoardPosition | null
 		}
 		black: {
-			to: {}
-			from: {}
+			to: BoardPosition | null
+			from: BoardPosition | null
 		}
 	}
 

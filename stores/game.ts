@@ -84,11 +84,6 @@ export const useGameStore = defineStore("game", {
 			this.initWebsocket()
 		},
 
-		onMove() {
-			this.board.paths.white.clear()
-			this.board.paths.black.clear()
-		},
-
 		initWebsocket(gameId?: string, playerId?: string) {
 			let _gameId: string
 
@@ -146,7 +141,6 @@ export const useGameStore = defineStore("game", {
 				if (response.type === "join") {
 					this.game.playerTwo = response.playerTwo
 				}
-				this.onMove()
 			})
 		},
 

@@ -1,10 +1,8 @@
-// A king is checkmate if:
-// He has no moves that arent covered by an enemy path
-// If the defending color cannot kill the piece that has him in check
-
-import { getPathBetweenPositions } from "./utils"
-
-// The defending peices cannot block the attacking piece by moving in their path.
+/**
+ *  1. Check if king has moves not covered by the enemy. (safe moves)
+ *  2. Check if the challenging piece can be killed. (Only one piece could possibly have the king in check.)
+ *  3. Check if the challenging pieces path can be intercepted.
+ */
 export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColor) {
 	const attackerColor = defenderColor === "white" ? "black" : "white"
 	const defenderKing = getKingPiece(boardState, defenderColor)
@@ -13,22 +11,16 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 		throw new Error("King has no boardPosition value.")
 	}
 
-	// const attackerPaths = game.paths(attackerColor)
 	const kingsMoves = kingMoves(defenderKing.boardPosition, boardState, defenderColor)
-	// console.log(kingsMoves) //
 
 	const attackerPaths = getAllPlayerPaths(boardState, attackerColor)
 
 	if (!attackerPaths) throw new Error("Attacker paths not found.")
 
-	// console.log(attackerPaths)
-
-	// Check if there is at least one king move that is not covered by any enemy path
 	const kingHasSafeMove = kingsMoves.some((move) => {
 		return !attackerPaths.some((position) => move.x === position.x && move.y === position.y)
 	})
 
-	console.log("kingHasSafeMoves", kingHasSafeMove)
 	if (kingHasSafeMove) return false // not checkmate
 
 	const defenderPaths = getAllPlayerPaths(boardState, defenderColor, "king")
@@ -53,8 +45,6 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 		)
 	})
 
-	console.log("attackerCanBeKilled", attackerCanBeKilled)
-
 	if (attackerCanBeKilled) return false // no checkmate
 
 	const attackingPiecePath = getPathFromPiece(attackingPiece, boardState)
@@ -70,9 +60,6 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 		defenderKing.boardPosition,
 	)
 
-	console.log(pathBetweenKingAndAttacker)
-	console.log(defenderPaths)
-
 	// if any defending piece can block the kings checker then : false
 	const attackerCanBeBlocked = pathBetweenKingAndAttacker.some((boardPosition) => {
 		return defenderPaths.some((defendingPosition) => {
@@ -84,7 +71,6 @@ export function isCheckmate(boardState: BoardState, defenderColor: GamePieceColo
 		})
 	})
 
-	console.log("attacker can be blocked", attackerCanBeBlocked)
 	if (attackerCanBeBlocked) return false // no checkmate
 	return true // checkmate
 }
