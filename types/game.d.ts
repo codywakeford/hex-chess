@@ -7,13 +7,21 @@ declare global {
 		playerOne: Player
 		playerTwo: Player | null
 
-		boardState: BoardState
+		boardState: CreateBoardState
 	}
 
 	type GameInstanceCache = Map<string, GameInstance>
 
 	interface BoardState {
 		/**Contains information about the board piece, its position and so on. */
+		boardPieces: HexBoardPiece[]
+		gamePieces: GamePieceMap
+		selectedBoardPiece: HexBoardPiece | null
+		checkState: CheckState
+	}
+
+	/** Sent Apon Create Request */
+	interface CreateBoardState {
 		boardPieces: HexBoardPiece[]
 		gamePieces: GamePiece[]
 		selectedBoardPiece: HexBoardPiece | null

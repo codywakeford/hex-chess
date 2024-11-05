@@ -22,10 +22,11 @@ export default eventHandler(async (event) => {
 		color: "black",
 	}
 
-	const boardState: BoardState = {
+	const boardState: CreateBoardState = {
 		gamePieces: startingPieces,
 		selectedBoardPiece: null,
 		boardPieces: [] as HexBoardPiece[],
+		checkState: { white: null, black: null },
 	}
 
 	const gameInstance: GameInstance = {

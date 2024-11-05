@@ -12,8 +12,8 @@
 			/>
 
 			<Piece
-				v-for="piece in gamePieces"
-				:piece="piece"
+				v-for="pieceId in gamePieceIds"
+				:pieceId="pieceId"
 				:height="(hexHeight / 3) * 2"
 			/>
 		</div>
@@ -23,11 +23,12 @@
 <script setup lang="ts">
 const game = useGameStore()
 
-const gamePieces = computed(() => {
-	return game.gamePieces
+const gamePieceIds = computed(() => {
+	return Array.from(game.board.gamePieces.keys())
 })
+
 const boardHexes = computed(() => {
-	return game.boardPieces
+	return game.board.boardPieces
 })
 
 const hexHeight = computed(() => {

@@ -11,7 +11,7 @@ export const useGameStore = defineStore("game", {
 
 		board: {
 			checkState: { white: null, black: null },
-			gamePieces: [] as GamePiece[],
+			gamePieces: new Map() as GamePieceMap,
 			boardPieces: [] as HexBoardPiece[],
 			selectedBoardPiece: {} as HexBoardPiece | null,
 		} as BoardState,
@@ -24,30 +24,6 @@ export const useGameStore = defineStore("game", {
 
 		getBoard(state) {
 			return state.board || { gamePieces: [], boardPieces: [] }
-		},
-
-		gamePieces(state) {
-			return (state.board && state.board.gamePieces) || []
-		},
-
-		getGamePieceFromPosition: (state) => (boardPosition: BoardPosition) => {
-			return state.board.gamePieces.find((piece) => {
-				return (
-					piece.boardPosition &&
-					piece.boardPosition.x === boardPosition.x &&
-					piece.boardPosition.y === boardPosition.y
-				)
-			})
-		},
-
-		getGamePieceIndexFromPosition: (state) => (boardPosition: BoardPosition) => {
-			return state.board.gamePieces.findIndex((piece) => {
-				return (
-					piece.boardPosition &&
-					piece.boardPosition.x === boardPosition.x &&
-					piece.boardPosition.y === boardPosition.y
-				)
-			})
 		},
 
 		boardPieces(state) {
@@ -63,13 +39,21 @@ export const useGameStore = defineStore("game", {
 
 	actions: {
 		async init() {
-			const gameInstance = await $fetch("/api/create-game", {
+			const gameInstance = await $fetch<GameInstance>("/api/create-game", {
 				method: "post",
 			})
 
 			if (!gameInstance) return
 
-			this.board.gamePieces = gameInstance.boardState.gamePieces
+			const pieces = gameInstance.boardState.gamePieces
+
+			pieces.forEach((piece) => {
+				if (!piece.boardPosition) return
+				const posString = stringPos(piece.boardPosition)
+				
+				this.board.gamePieces.set(posString, piece) // piece id is start pos
+			})
+
 			this.player = gameInstance.playerOne
 
 			this.game = {
@@ -108,13 +92,15 @@ export const useGameStore = defineStore("game", {
 				const response = JSON.parse(newValue)
 
 				if (response.type === "kill") {
-					const { piecePosition } = response
+					const { piecePosition }: { piecePosition: BoardPosition } = response
 
-					const pieceIndex = this.getGamePieceIndexFromPosition(piecePosition)
+					const piece = this.board.gamePieces.get(stringPos(piecePosition))
 
-					if (pieceIndex !== -1) {
-						this.board.gamePieces[pieceIndex].alive = false
-						this.board.gamePieces[pieceIndex].boardPosition = null
+					if (piece) {
+						piece.alive = false
+						piece.boardPosition = null
+
+						return
 					}
 				}
 
@@ -124,11 +110,14 @@ export const useGameStore = defineStore("game", {
 						pieceEnd,
 					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
 
-					const oldPieceIndex = this.getGamePieceIndexFromPosition(pieceStart)
+					const piece = this.board.gamePieces.get(stringPos(pieceStart))
 
-					if (oldPieceIndex !== -1) {
-						this.board.gamePieces[oldPieceIndex].boardPosition = pieceEnd
+					if (!piece) {
+						console.error("No piece found.")
+						return
 					}
+
+					piece.boardPosition = pieceEnd
 				}
 
 				if (response.type === "join") {
@@ -147,56 +136,54 @@ export const useGameStore = defineStore("game", {
 
 		selectBoardPiece(boardPiece: HexBoardPiece) {
 			this.resetBoardHighlights()
-			this.board.selectedBoardPiece = boardPiece
 
-			this.displayPieceMoves()
+			this.board.selectedBoardPiece = boardPiece
 			this.board.selectedBoardPiece.highlight = "selected"
+
+			this.displayPieceMoves(boardPiece.boardPosition)
 		},
 
-		displayPieceMoves() {
-			if (!this.board.selectedBoardPiece?.boardPosition) return
+		displayPieceMoves(boardPosition: BoardPosition) {
+			const posString = stringPos(boardPosition)
 
-			const piece = this.getGamePieceFromPosition(
-				this.board.selectedBoardPiece?.boardPosition,
-			)
+			if (!posString) {
+				console.error("Board position is null")
+				return
+			}
+
+			const piece = this.board.gamePieces.get(posString)
 
 			if (!piece) {
 				this.board.selectedBoardPiece = {} as HexBoardPiece
 				return
 			}
 
-			const boardPieces = this.board.boardPieces
-			const gamePieces = this.board.gamePieces
-			const position = this.board.selectedBoardPiece?.boardPosition
-
-			if (!position) return
-
 			let moves: BoardPosition[] = []
 
 			switch (piece.type) {
 				case "castle":
-					moves = castleMoves(position, boardPieces, gamePieces, piece.color)
+					moves = castleMoves(boardPosition, this.board, piece.color)
 					break
 
 				case "pawn":
-					moves = pawnMoves(position, gamePieces, piece.color)
+					moves = pawnMoves(boardPosition, this.board, piece.color)
 					break
 
 				case "king":
 					// const attackerPaths = getAllPlayerPaths(this.board, piece.color)
-					moves = kingMoves(position)
+					moves = kingMoves(boardPosition)
 					break
 
 				case "queen":
-					moves = queenMoves(position, boardPieces, gamePieces, piece.color)
+					moves = queenMoves(boardPosition, this.board, piece.color)
 					break
 
 				case "bishop":
-					moves = bishopMoves(position, boardPieces, gamePieces, piece.color)
+					moves = bishopMoves(boardPosition, this.board, piece.color)
 					break
 
 				case "horse":
-					moves = horseMoves(position, boardPieces)
+					moves = horseMoves(boardPosition, this.board)
 					break
 
 				default:
@@ -214,11 +201,7 @@ export const useGameStore = defineStore("game", {
 				if (hex) {
 					hex.highlight = "move"
 
-					const side = positionContainsPiece(
-						boardPosition,
-						this.board.gamePieces,
-						piece.color,
-					)
+					const side = positionContainsPiece(boardPosition, this.board, piece.color)
 
 					if (side === "enemy") {
 						hex.highlight = "attack"
@@ -247,7 +230,12 @@ export const useGameStore = defineStore("game", {
 				return
 			}
 
-			this.board.gamePieces = gameInstance.boardState.gamePieces
+			const pieces = gameInstance.boardState.gamePieces
+
+			pieces.forEach((piece) => {
+				if (!piece.boardPosition) return
+				this.board.gamePieces.set(stringPos(piece.boardPosition), piece)
+			})
 
 			this.game = {
 				gameId: gameInstance.id,
@@ -257,37 +245,41 @@ export const useGameStore = defineStore("game", {
 			}
 		},
 
-		async movePiece(position: BoardPosition) {
+		async movePiece(toPosition: BoardPosition) {
 			const selectedBoardPiece = this.board.selectedBoardPiece
-			if (!selectedBoardPiece) return
-
-			const piece = this.board.gamePieces.find((piece) => {
-				return (
-					piece.boardPosition &&
-					selectedBoardPiece?.boardPosition &&
-					piece.boardPosition.x === selectedBoardPiece.boardPosition.x &&
-					piece.boardPosition.y === selectedBoardPiece.boardPosition.y
-				)
-			})
-
-			if (piece) {
-				const side = positionContainsPiece(position, this.board.gamePieces, piece.color)
-
-				if (side === "enemy") {
-					this.kill(position)
-					new Audio("/capture.mp3").play()
-				} else {
-					new Audio("/move-self.mp3").play()
-				}
-
-				piece.boardPosition = position
+			const fromPosition = selectedBoardPiece?.boardPosition
+			
+			if (!selectedBoardPiece || !fromPosition) return
+			
+			const piece = this.board.gamePieces.get(stringPos(fromPosition))
+			
+			if (!piece) {
+				console.error("Piece not found")
+				return
 			}
+
+			const side = positionContainsPiece(toPosition, this.board, piece.color)
+
+			if (side === "enemy") {
+				this.kill(toPosition)
+				new Audio("/capture.mp3").play()
+			} else {
+				new Audio("/move-self.mp3").play()
+			}
+
+			this.board.gamePieces.delete(stringPos(fromPosition))
+			this.board.gamePieces.set(stringPos(toPosition), piece)
+
+			piece.boardPosition = toPosition
+
+			console.log(toPosition, piece.boardPosition)
+			
 
 			// send update to ws
 			const payload: UpdateMoveRequest = {
 				type: "move",
 				pieceStart: selectedBoardPiece.boardPosition,
-				pieceEnd: position,
+				pieceEnd: toPosition,
 				gameId: this.game.gameId,
 			}
 
@@ -299,13 +291,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		kill(position: BoardPosition) {
-			const pieceToKill = this.board.gamePieces.find((piece) => {
-				return (
-					piece.boardPosition &&
-					piece.boardPosition.x === position.x &&
-					piece.boardPosition.y === position.y
-				)
-			})
+			const pieceToKill = this.board.gamePieces.get(stringPos(position))
 
 			if (!pieceToKill || !pieceToKill.boardPosition) return
 

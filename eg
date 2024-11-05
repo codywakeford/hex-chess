@@ -1,0 +1,113 @@
+[33mcommit 663774e80051f805f764b9ba21792061dde5f2fc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Tue Nov 5 08:30:04 2024 +0000
+
+    minor changes
+
+[33mcommit ceee5524df26a633ccec1e0ec46d762d6f69c87f[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Mon Nov 4 23:05:41 2024 +0000
+
+    refactor
+
+[33mcommit 8d20d84782683659dab75e67a4822cce6d250f99[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Mon Nov 4 21:54:55 2024 +0000
+
+    made board responsive, refactor
+
+[33mcommit bc8be679e452badbdfa3ec0a1da5e217ca888cbd[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Mon Nov 4 13:56:16 2024 +0000
+
+    more checkmate changes
+
+[33mcommit ac4fc56dc052b330daa6590a64e54aee25d0ce4d[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Mon Nov 4 11:46:22 2024 +0000
+
+    commit before refactor
+
+[33mcommit 4312ad7544071c728d2be6902523f9cb0c1337b5[m
+Author: cwake3218 <cody@gourmai.co.uk>
+Date:   Sat Nov 2 20:44:26 2024 +0000
+
+    checkmate logic
+
+[33mcommit 1ba9c742fb04b2b3fd15bc6f67eab615095b4b41[m
+Author: cwake3218 <cody@gourmai.co.uk>
+Date:   Sat Nov 2 11:33:19 2024 +0000
+
+    making board responsive
+
+[33mcommit 6f8cb632e98ae5c510f15b5053b2ea81bf614b07[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Fri Nov 1 22:14:54 2024 +0000
+
+    player movements shared on ws
+
+[33mcommit 1518d8002f198e2e6bcdd4886e3dd5baffa6998d[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Fri Nov 1 15:43:38 2024 +0000
+
+    ^
+
+[33mcommit 39a16c9b2d7a4562ffe421a62e84b98f5d3c5533[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Fri Nov 1 15:18:32 2024 +0000
+
+    Added websockets
+
+[33mcommit 6c60e5ccc7fb954336a3fec3e736cd8f3028051f[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Thu Oct 31 23:26:54 2024 +0000
+
+    Finished piece movements
+
+[33mcommit 1b19534e29b9ecb375a064739e6c287650b81422[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Thu Oct 31 16:07:54 2024 +0000
+
+    rewriting straight path algos
+
+[33mcommit 4b8be537cfd7edd0bea26ca1dfc940cc3a601915[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Thu Oct 31 12:11:09 2024 +0000
+
+    diagonal search paths nearly done
+
+[33mcommit cc4c1f9a79c8f3c51f781f587799b267871f70f3[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Wed Oct 30 20:48:23 2024 +0000
+
+    movement code
+
+[33mcommit 50fc3f35e9787f28847e0dbe425322450fc6cb42[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Wed Oct 30 14:00:25 2024 +0000
+
+    coffee break
+
+[33mcommit 394ba99fcce10fd1f59c3bb39f6033c698af3598[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Tue Oct 29 23:50:00 2024 +0000
+
+    refactor to integrate global state
+
+[33mcommit 93ee37c417d25a42cae38ddc5baace85f2cce681[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Tue Oct 29 13:13:42 2024 +0000
+
+    master
+
+[33mcommit 2389f6f7acd212c2e74455224dc442b7628f1f0b[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Tue Oct 29 11:06:16 2024 +0000
+
+    hex board
+
+[33mcommit a0d07fa2d37fec967b9d2df9be285960e3649b15[m
+Author: Cody Wakeford <codypwakeford@gmail.com>
+Date:   Tue Oct 29 00:51:47 2024 +0000
+
+    inital commit

@@ -1,6 +1,6 @@
 <template>
 	<div
-		v-if="props.piece.alive"
+		v-if="piece && piece.alive"
 		class="piece"
 		:style="{
 			left: `${left}px`,
@@ -29,9 +29,13 @@ const bottom = computed(() => {
 	return position.value[1]
 })
 
-const props = defineProps<{ piece: GamePiece; height: number }>()
+const props = defineProps<{ pieceId: string; height: number }>()
 
 const imageSrc = ref("")
+
+const piece = computed(() => {
+	return game.board.gamePieces.get(props.pieceId)
+})
 
 function getImageSrc(type: GamePiece["type"], color: GamePieceColor) {
 	let src = "/"
@@ -51,17 +55,20 @@ function getImageSrc(type: GamePiece["type"], color: GamePieceColor) {
 	return src
 }
 watch(
-	() => props.piece.boardPosition,
-	(newBoardPosition) => {
-		getPiecePosition(newBoardPosition)
+	() => piece.value?.boardPosition,
+	(boardPosition) => {
+		console.log("piece change detected")
+		if (!boardPosition) return
+		getPiecePosition(boardPosition)
 	},
-	{ immediate: true },
+	{ deep: true, immediate: true },
 )
 
 watch(
-	() => props.piece.type,
+	() => piece.value?.type,
 	(newType) => {
-		imageSrc.value = getImageSrc(newType, props.piece.color)
+		if (!newType || !piece.value) return
+		imageSrc.value = getImageSrc(newType, piece.value.color)
 	},
 	{ immediate: true },
 )

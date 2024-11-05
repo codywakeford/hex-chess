@@ -36,14 +36,9 @@ const pawnDoublePositions = {
 	],
 }
 
-export function queenMoves(
-	position: BoardPosition,
-	boardPieces: HexBoardPiece[],
-	gamePieces: GamePiece[],
-	color: GamePieceColor,
-) {
-	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces, color)
-	const straightPaths = getStraightPaths(position, boardPieces, gamePieces, color)
+export function queenMoves(position: BoardPosition, boardState: BoardState, color: GamePieceColor) {
+	const diagonalPaths = getDiagonalPaths(position, boardState, color)
+	const straightPaths = getStraightPaths(position, boardState, color)
 
 	return [...diagonalPaths, ...straightPaths]
 }
@@ -78,7 +73,7 @@ export function kingMoves(position: BoardPosition): BoardPosition[] {
 	return kingMoves
 }
 
-export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], color: GamePieceColor) {
+export function pawnMoves(position: BoardPosition, boardState: BoardState, color: GamePieceColor) {
 	// add pawn attack moves
 	let pawnMoves: BoardPosition[] = []
 	let diagonalsToCheck = []
@@ -96,7 +91,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 	}
 
 	diagonalsToCheck.forEach((boardPosition) => {
-		if (positionContainsPiece(boardPosition, gamePieces, color)) {
+		if (positionContainsPiece(boardPosition, boardState, color)) {
 			pawnMoves.push(boardPosition)
 		}
 	})
@@ -108,7 +103,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 		})
 
 		let positionUp = iterateUp(position)
-		const positionUpContainsPiece = positionContainsPiece(positionUp, gamePieces, color)
+		const positionUpContainsPiece = positionContainsPiece(positionUp, boardState, color)
 
 		if (!positionUpContainsPiece) {
 			pawnMoves.push(positionUp)
@@ -116,7 +111,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 
 		if (canMoveTwice && !positionUpContainsPiece) {
 			positionUp = iterateUp(positionUp)
-			if (!positionContainsPiece(positionUp, gamePieces, color)) {
+			if (!positionContainsPiece(positionUp, boardState, color)) {
 				pawnMoves.push(positionUp)
 			}
 		}
@@ -129,7 +124,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 		})
 
 		let positionDown = iterateDown(position)
-		const positionDownContainsPiece = positionContainsPiece(positionDown, gamePieces, color)
+		const positionDownContainsPiece = positionContainsPiece(positionDown, boardState, color)
 
 		if (!positionDownContainsPiece) {
 			pawnMoves.push(positionDown)
@@ -137,7 +132,7 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 
 		if (canMoveTwice && !positionDownContainsPiece) {
 			positionDown = iterateDown(positionDown)
-			if (!positionContainsPiece(positionDown, gamePieces, color)) {
+			if (!positionContainsPiece(positionDown, boardState, color)) {
 				pawnMoves.push(positionDown)
 			}
 		}
@@ -148,27 +143,25 @@ export function pawnMoves(position: BoardPosition, gamePieces: GamePiece[], colo
 
 export function castleMoves(
 	position: BoardPosition,
-	boardPieces: HexBoardPiece[],
-	gamePieces: GamePiece[],
+	boardState: BoardState,
 	color: GamePieceColor,
 ) {
-	const straightPaths = getStraightPaths(position, boardPieces, gamePieces, color)
+	const straightPaths = getStraightPaths(position, boardState, color)
 
 	return straightPaths
 }
 
 export function bishopMoves(
 	position: BoardPosition,
-	boardPieces: HexBoardPiece[],
-	gamePieces: GamePiece[],
+	boardState: BoardState,
 	color: GamePieceColor,
 ) {
-	const diagonalPaths = getDiagonalPaths(position, boardPieces, gamePieces, color)
+	const diagonalPaths = getDiagonalPaths(position, boardState, color)
 
 	return diagonalPaths
 }
 
-export function horseMoves(position: BoardPosition, boardPieces: HexBoardPiece[]) {
+export function horseMoves(position: BoardPosition, boardState: BoardState) {
 	let horseMoves: BoardPosition[] = []
 
 	const moveChains = [
@@ -192,7 +185,7 @@ export function horseMoves(position: BoardPosition, boardPieces: HexBoardPiece[]
 		for (const _function of chain) {
 			currentPos = _function(currentPos)
 		}
-		if (outOfBounds(currentPos, boardPieces)) continue
+		if (outOfBounds(currentPos, boardState)) continue
 		horseMoves.push(currentPos)
 	}
 

@@ -1,4 +1,3 @@
-import { TestingAttackerPiece, TestingBoardState, TestingKingPiece } from "./testingData"
 import { getAttackingPieceFromPath } from "./utils"
 
 // A king is checkmate if:

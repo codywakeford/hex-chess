@@ -10,6 +10,8 @@ declare global {
 		boardPosition: BoardPosition | null
 	}
 
+	interface GamePieceMap extends Map<string, GamePiece> {}
+
 	type Side = "ally" | "enemy" | null
 	type GamePieceColor = "white" | "black"
 

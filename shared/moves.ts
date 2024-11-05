@@ -222,8 +222,7 @@ export function iterateDiagonalUpLeft(position: BoardPosition): BoardPosition {
 
 export function getStraightPaths(
 	position: BoardPosition,
-	boardPieces: HexBoardPiece[],
-	gamePieces: GamePiece[],
+	boardState: BoardState,
 	color: GamePieceColor,
 ): BoardPosition[] {
 	/**
@@ -248,8 +247,8 @@ export function getStraightPaths(
 			diagonalHexagons.push(cursorPos)
 			cursorPos = _function(cursorPos)
 
-			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-			const side = positionContainsPiece(cursorPos, gamePieces, color)
+			isOutOfBounds = outOfBounds(cursorPos, boardState)
+			const side = positionContainsPiece(cursorPos, boardState, color)
 
 			if (side === "enemy") {
 				diagonalHexagons.push(cursorPos)
@@ -265,8 +264,7 @@ export function getStraightPaths(
 
 export function getDiagonalPaths(
 	position: BoardPosition,
-	boardPieces: HexBoardPiece[],
-	gamePieces: GamePiece[],
+	boardState: BoardState,
 	color: GamePieceColor,
 ): BoardPosition[] {
 	/**
@@ -291,8 +289,8 @@ export function getDiagonalPaths(
 			diagonalHexagons.push(cursorPos)
 			cursorPos = _function(cursorPos)
 
-			isOutOfBounds = outOfBounds(cursorPos, boardPieces)
-			const side = positionContainsPiece(cursorPos, gamePieces, color)
+			isOutOfBounds = outOfBounds(cursorPos, boardState)
+			const side = positionContainsPiece(cursorPos, boardState, color)
 
 			if (side === "enemy") {
 				diagonalHexagons.push(cursorPos)
@@ -309,10 +307,10 @@ export function getDiagonalPaths(
 /**
  * Check if there's any matching board piece //
  */
-export function outOfBounds(position: BoardPosition, boardPieces: HexBoardPiece[]): boolean {
+export function outOfBounds(position: BoardPosition, boardState: BoardState): boolean {
 	// const boardPiecesNonReactive = [...boardPieces] // to prevent reactivity loop
 
-	const isInBounds = boardPieces.some(
+	const isInBounds = boardState.boardPieces.some(
 		(boardPiece) =>
 			boardPiece.boardPosition.x === position.x && boardPiece.boardPosition.y === position.y,
 	)
@@ -322,16 +320,10 @@ export function outOfBounds(position: BoardPosition, boardPieces: HexBoardPiece[
 
 export function positionContainsPiece(
 	position: BoardPosition,
-	gamePieces: GamePiece[],
+	boardState: BoardState,
 	color: GamePieceColor,
 ): Side {
-	const containsPiece = gamePieces.find((piece) => {
-		return (
-			piece.boardPosition &&
-			piece.boardPosition.x === position.x &&
-			piece.boardPosition.y === position.y
-		)
-	})
+	const containsPiece = boardState.gamePieces.get(stringPos(position))
 
 	if (!containsPiece) return null
 

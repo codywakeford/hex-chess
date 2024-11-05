@@ -8,6 +8,14 @@ export default defineNuxtConfig({
 	},
 
 	nitro: {
+		firebase: {
+			nodeVersion: "20",
+			gen: 2,
+			httpsOptions: {
+				region: "europe-west1",
+				maxInstances: 3,
+			},
+		},
 		imports: {
 			dirs: ["./shared/*"],
 		},

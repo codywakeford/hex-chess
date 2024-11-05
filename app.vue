@@ -2,6 +2,8 @@
 	<main>
 		<h1>Gliński's Chess</h1>
 		<h5>Game ID: {{ game.game.gameId }}</h5>
+		<pre>123123{{ mapPiece }}</pre>
+		<!-- <pre>{{ game.board.gamePieces.get(stringPos(mapPiece?.boardPosition)) }}</pre> -->
 		<Board :height="boardHeight" />
 
 		<div class="control-panel">
@@ -34,6 +36,10 @@
 
 <script lang="ts" setup>
 const game = useGameStore()
+
+const mapPiece = computed(() => {
+	return game.board.selectedBoardPiece
+})
 
 const boardHeight = computed(() => {
 	const windowWidth = window.innerWidth
