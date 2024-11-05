@@ -2,6 +2,7 @@
 	<main>
 		<h1>Gliński's Chess</h1>
 		<h5>Game ID: {{ game.game.gameId }}</h5>
+		<pre>{{ game.board.checkState }}</pre>
 		<!-- <pre>{{ map }}</pre> -->
 		<Board :height="boardHeight" />
 

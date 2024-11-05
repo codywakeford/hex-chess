@@ -18,6 +18,12 @@ declare global {
 		gamePieces: GamePieceMap
 		selectedBoardPiece: HexBoardPiece | null
 		checkState: CheckState
+
+		/**Stores path calculations. Refreshed every turn. */
+		paths: {
+			white: Set<BoardPosition>
+			black: Set<BoardPosition>
+		}
 	}
 
 	/** Sent Apon Create Request */
@@ -54,8 +60,6 @@ declare global {
 		/**Stores the id of the piece on the hex. */
 		pieceId: string | null
 	}
-
-
 
 	interface checkState {
 		white: null | "check" | "checkmate"

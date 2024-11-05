@@ -2,21 +2,35 @@ export function getPieceByPosition(boardState: BoardState, boardPosition: BoardP
 	return boardState.gamePieces.get(stringPos(boardPosition))
 }
 
-
 export function stringPos(boardPosition: BoardPosition) {
 	return `${boardPosition.x}${boardPosition.y}`
 }
 
 export function objPos(string: string) {
-		const boardPositionObj: BoardPosition = {x: "", y: 0}
-	
-		const letter = string[0]
-		const number = string.slice(1)
+	const boardPositionObj: BoardPosition = { x: "", y: 0 }
 
-		boardPositionObj.x = letter
-		boardPositionObj.y = parseInt(number, 10)
+	const letter = string[0]
+	const number = string.slice(1)
 
-		return boardPositionObj
+	boardPositionObj.x = letter
+	boardPositionObj.y = parseInt(number, 10)
+
+	return boardPositionObj
+}
+
+export function getKingPiece(boardState: BoardState, color: GamePieceColor) {
+	// pieces are id by their start positions, so use that to find efficently
+
+	const king = Array.from(boardState.gamePieces.values()).filter((piece) => {
+		return piece.color === color && piece.type === "king"
+	})
+	// console.log(king)
+
+	if (color === "black") {
+		return boardState.gamePieces.get("g10") as GamePiece
+	} else {
+		return boardState.gamePieces.get("g1") as GamePiece
+	}
 }
 
 export function getPlayerPieces(boardState: BoardState, color: GamePieceColor): GamePiece[] {
@@ -37,7 +51,7 @@ export function getAttackingPieceFromPath(
 	}
 
 	for (const piece of pieces) {
-		const path = getPathFromPiece(piece, boardState, attackingColor)
+		const path = getPathFromPiece(piece, boardState)
 
 		if (!path) continue
 
@@ -61,11 +75,7 @@ export function getEnemyColor(color: GamePieceColor) {
 	return color === "white" ? "black" : "white"
 }
 
-export function getPathFromPiece(
-	gamePiece: GamePiece,
-	boardState: BoardState,
-	color: GamePieceColor,
-) {
+export function getPathFromPiece(gamePiece: GamePiece, boardState: BoardState) {
 	let path: BoardPosition[] = []
 
 	if (!gamePiece.boardPosition) return
@@ -76,33 +86,47 @@ export function getPathFromPiece(
 				gamePiece.boardPosition,
 				boardState,
 
-				color,
+				gamePiece.color,
 			)
 			break
+
 		case "castle":
-			path = castleMoves(gamePiece.boardPosition, boardState, color)
+			path = castleMoves(gamePiece.boardPosition, boardState, gamePiece.color)
+
 		case "horse":
 			path = horseMoves(gamePiece.boardPosition, boardState)
+
 		case "king":
-			path = kingMoves(gamePiece.boardPosition)
+			path = kingMoves(gamePiece.boardPosition, boardState, gamePiece.color)
 			break
+
 		case "pawn":
-			path = pawnMoves(gamePiece.boardPosition, boardState, color)
+			path = pawnMoves(gamePiece.boardPosition, boardState, gamePiece.color)
 			break
+
 		case "queen":
-			path = queenMoves(gamePiece.boardPosition, boardState, color)
+			path = queenMoves(gamePiece.boardPosition, boardState, gamePiece.color)
 			break
 	}
 	return path
 }
 
-export function getAllPlayerPaths(boardState: BoardState, color: GamePieceColor): BoardPosition[] {
+export function getAllPlayerPaths(
+	boardState: BoardState,
+	color: GamePieceColor,
+): Set<BoardPosition> {
 	const playerPieces = getPlayerPieces(boardState, color)
-	let paths: BoardPosition[] = []
+	const paths = new Set<BoardPosition>()
 
 	playerPieces.forEach((piece) => {
-		const path = getPathFromPiece(piece, boardState, color)
-		if (path) paths.push(...path)
+		const path = getPathFromPiece(piece, boardState)
+		if (path) {
+			path.forEach((position) => {
+				if (position.x && position.y) {
+					paths.add(position)
+				}
+			})
+		}
 	})
 
 	return paths

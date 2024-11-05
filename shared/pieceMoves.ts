@@ -43,8 +43,13 @@ export function queenMoves(position: BoardPosition, boardState: BoardState, colo
 	return [...diagonalPaths, ...straightPaths]
 }
 
-export function kingMoves(position: BoardPosition): BoardPosition[] {
+export function kingMoves(
+	position: BoardPosition,
+	boardState: BoardState,
+	color: GamePieceColor,
+): BoardPosition[] {
 	let kingMoves: BoardPosition[] = []
+	const game = useGameStore()
 
 	// const enemyColor = defendingColor === "white" ? "black" : "white"
 
@@ -67,7 +72,12 @@ export function kingMoves(position: BoardPosition): BoardPosition[] {
 	moveFunctions.forEach((_function) => {
 		const newPosition = _function(position)
 
-		kingMoves.push(newPosition)
+		if (outOfBounds(newPosition, boardState)) return
+		const pieceSide = positionContainsPiece(newPosition, boardState, color)
+
+		if (pieceSide === "enemy" || pieceSide === null) {
+			kingMoves.push(newPosition)
+		}
 	})
 
 	return kingMoves

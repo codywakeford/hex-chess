@@ -57,7 +57,7 @@ function getImageSrc(type: GamePiece["type"], color: GamePieceColor) {
 watch(
 	() => piece.value?.boardPosition,
 	(boardPosition) => {
-		console.log("piece change detected")
+		// console.log("piece change detected")
 		if (!boardPosition) return
 		getPiecePosition(boardPosition)
 	},

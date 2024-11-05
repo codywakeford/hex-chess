@@ -14,9 +14,13 @@ export const useGameStore = defineStore("game", {
 			gamePieces: new Map() as GamePieceMap,
 			boardPieces: new Map() as BoardPieceMap,
 			selectedBoardPiece: {} as BoardPiece | null,
+			paths: {
+				white: new Set() as Set<BoardPosition>,
+				black: new Set() as Set<BoardPosition>,
+			},
 		} as BoardState,
 
-		selectedColors: classicBoard as string[]
+		selectedColors: classicBoard as string[],
 	}),
 
 	getters: {
@@ -26,9 +30,8 @@ export const useGameStore = defineStore("game", {
 
 		gamePiece: (state) => (boardPosition: BoardPosition) => {
 			const boardPiece = state.board.boardPieces.get(stringPos(boardPosition))
-			
-			const pieceId = boardPiece?.pieceId
 
+			const pieceId = boardPiece?.pieceId
 
 			if (!pieceId) return null
 
@@ -37,6 +40,18 @@ export const useGameStore = defineStore("game", {
 
 		boardPiece: (state) => (boardPosition: BoardPosition) => {
 			return state.board.boardPieces.get(stringPos(boardPosition))
+		},
+
+		paths: (state) => (color: GamePieceColor) => {
+			if (state.board.paths[color].size) {
+				return state.board.paths[color]
+			}
+
+			const path = getAllPlayerPaths(state.board, color)
+
+			state.board.paths[color] = new Set(path)
+
+			return state.board.paths[color]
 		},
 	},
 
@@ -54,10 +69,13 @@ export const useGameStore = defineStore("game", {
 				if (!piece.boardPosition) return
 				const boardPiece = this.boardPiece(piece.boardPosition)
 				if (!boardPiece) throw new Error("Board piece not found")
-				
+
 				boardPiece.pieceId = stringPos(piece.boardPosition)
 
-				this.board.gamePieces.set(stringPos(piece.boardPosition), {...piece, pieceId: stringPos(piece.boardPosition)}) // piece id is start pos
+				this.board.gamePieces.set(stringPos(piece.boardPosition), {
+					...piece,
+					pieceId: stringPos(piece.boardPosition),
+				}) // piece id is start pos
 			})
 
 			this.player = gameInstance.playerOne
@@ -70,6 +88,11 @@ export const useGameStore = defineStore("game", {
 			}
 
 			this.initWebsocket()
+		},
+
+		onMove() {
+			this.board.paths.white.clear()
+			this.board.paths.black.clear()
 		},
 
 		initWebsocket(gameId?: string, playerId?: string) {
@@ -129,6 +152,7 @@ export const useGameStore = defineStore("game", {
 				if (response.type === "join") {
 					this.game.playerTwo = response.playerTwo
 				}
+				this.onMove()
 			})
 		},
 
@@ -150,11 +174,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		displayPieceMoves(boardPosition: BoardPosition) {
-
-
 			const piece = this.gamePiece(boardPosition)
-			
-
 
 			if (!piece) {
 				this.board.selectedBoardPiece = {} as BoardPiece
@@ -173,8 +193,7 @@ export const useGameStore = defineStore("game", {
 					break
 
 				case "king":
-					// const attackerPaths = getAllPlayerPaths(this.board, piece.color)
-					moves = kingMoves(boardPosition)
+					moves = kingMoves(boardPosition, this.board, piece.color)
 					break
 
 				case "queen":
@@ -232,12 +251,11 @@ export const useGameStore = defineStore("game", {
 
 			pieces.forEach((piece) => {
 				if (!piece.boardPosition) return
-				
+
 				const boardPiece = this.boardPiece(piece.boardPosition)
 				if (!boardPiece) return
-				boardPiece.pieceId = stringPos(piece.boardPosition) 
-				
-				
+				boardPiece.pieceId = stringPos(piece.boardPosition)
+
 				this.board.gamePieces.set(stringPos(piece.boardPosition), piece)
 			})
 
@@ -257,12 +275,11 @@ export const useGameStore = defineStore("game", {
 			const gamePiece = this.gamePiece(fromPosition)
 
 			if (boardPiece) {
-				boardPiece.pieceId = null			
+				boardPiece.pieceId = null
 			}
-			
+
 			if (!selectedBoardPiece || !fromPosition) return
-			
-			
+
 			if (!gamePiece) {
 				console.error("Piece not found")
 				return
@@ -278,14 +295,11 @@ export const useGameStore = defineStore("game", {
 			}
 
 			gamePiece.boardPosition = toPosition
-			
-			
+
 			const newBoardPiece = this.boardPiece(toPosition)
 			if (newBoardPiece) {
 				newBoardPiece.pieceId = gamePiece.pieceId
 			}
-
-			
 
 			// send update to ws
 			const payload: UpdateMoveRequest = {
@@ -300,6 +314,8 @@ export const useGameStore = defineStore("game", {
 			this.resetBoardHighlights()
 
 			this.checkCheck() // TODO: check if enemy is now in check
+
+			this.onMove()
 		},
 
 		kill(position: BoardPosition) {
@@ -327,23 +343,22 @@ export const useGameStore = defineStore("game", {
 		checkCheck() {
 			const defenderColor = this.game.turn === "white" ? "black" : "white"
 
-			// TODO: Make more efficient
+			const check = isCheck(this.board, defenderColor)
 
-			// const check = isCheck(this.board, defenderColor)
+			if (!check) {
+				this.board.checkState[defenderColor] = null
+				return // if not in check it cant be in checkmate : return
+			}
 
-			// // console.log(check)
-			// if (!check) {
-			// 	this.board.checkState[defenderColor] = null
-			// 	return // if not in check it cant be in checkmate : return
-			// }
+			this.board.checkState[defenderColor] = "check"
 
-			// this.board.checkState[defenderColor] = "check"
+			const checkmate = isCheckmate(this.board, defenderColor)
 
-			// const checkmate = isCheckmate(this.board, defenderColor)
+			console.log(checkmate)
 
-			// if (!checkmate) return // leave king in check
+			if (!checkmate) return // leave king in check
 
-			// this.board.checkState[defenderColor] = "checkmate"
+			this.board.checkState[defenderColor] = "checkmate"
 		},
 	},
 })

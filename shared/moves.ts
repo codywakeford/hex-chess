@@ -247,7 +247,7 @@ export function getStraightPaths(
 			diagonalHexagons.push(cursorPos)
 			cursorPos = _function(cursorPos)
 
-			isOutOfBounds = outOfBounds(cursorPos, boardState)
+			if (outOfBounds(cursorPos, boardState)) return 
 			const side = positionContainsPiece(cursorPos, boardState, color)
 
 			if (side === "enemy") {
@@ -283,7 +283,6 @@ export function getDiagonalPaths(
 
 	directionFunctions.forEach((_function) => {
 		let cursorPos = position
-
 		let isOutOfBounds = false
 
 		while (!isOutOfBounds) {
@@ -307,7 +306,7 @@ export function getDiagonalPaths(
 }
 
 /**
- * Check if there's any matching board piece //
+ * Check if there's any matching board piece.
  */
 export function outOfBounds(position: BoardPosition, boardState: BoardState): boolean {
 
@@ -321,7 +320,6 @@ export function positionContainsPiece(
 	boardState: BoardState,
 	color: GamePieceColor,
 ): Side {
-	console.log(position)
 	const boardPiece = boardState.boardPieces.get(stringPos(position))
 	
 	if(!boardPiece) {
