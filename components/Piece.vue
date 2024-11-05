@@ -74,16 +74,9 @@ watch(
 )
 
 function getPiecePosition(boardPosition: GamePiece["boardPosition"]) {
-	const boardPieces = game.boardPieces
 	if (!boardPosition) return
 
-	const hex = boardPieces.find((hex) => {
-		return (
-			hex.boardPosition &&
-			hex.boardPosition.x === boardPosition.x &&
-			hex.boardPosition.y === boardPosition.y
-		)
-	})
+	const hex = game.board.boardPieces.get(stringPos(boardPosition))
 
 	if (hex) {
 		if (position.value[0] !== hex.position[0] || position.value[1] !== hex.position[1]) {

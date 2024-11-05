@@ -2,13 +2,10 @@
 	<div class="board-container">
 		<div class="board">
 			<Hexagon
-				v-for="(hex, index) in boardHexes"
-				:color="hex.color"
+				v-for="hexId in hexIds"
 				class="hexagon"
-				:position="hex.boardPosition"
 				:height="hexHeight"
-				:hex="hex"
-				:style="{ left: `${hex.position[0]}px`, bottom: `${hex.position[1]}px` }"
+				:hexId="hexId"
 			/>
 
 			<Piece
@@ -27,8 +24,8 @@ const gamePieceIds = computed(() => {
 	return Array.from(game.board.gamePieces.keys())
 })
 
-const boardHexes = computed(() => {
-	return game.board.boardPieces
+const hexIds = computed(() => {
+	return Array.from(game.board.boardPieces.keys())
 })
 
 const hexHeight = computed(() => {

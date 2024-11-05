@@ -8,6 +8,7 @@ declare global {
 
 		/**X and Y position */
 		boardPosition: BoardPosition | null
+		pieceId: string
 	}
 
 	interface GamePieceMap extends Map<string, GamePiece> {}

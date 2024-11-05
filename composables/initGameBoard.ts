@@ -1,7 +1,5 @@
 const letters = "abcdefghijkl"
-const colors = ["#999", "#666", "#444"]
-const colors1 = ["#d18b47", "#e8ab6f", "#ffce9e"]
-const selectedColors = ref(colors1)
+
 
 // Create the hexagonal board // // https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cleanpng.com%2Fpng-hexagonal-chess-l-ancien-secret-de-la-fleur-de-vie-1933863%2F10.html&psig=AOvVaw2bmisPHcUYqEs7lNPYBjRF&ust=1730242812490000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCkkfOWsokDFQAAAAAdAAAAABB-
 
@@ -51,14 +49,15 @@ export function initGameBoard(hexHeight: number) {
 			// increment x by 1 hex
 			hexPos[0] += hexWidth * column
 
-			const boardHex: HexBoardPiece = {
+			const boardHex: BoardPiece = {
 				boardPosition: {
 					x: `${letters[column - 1 + hexPositionNameOffset]}`,
 					y: row,
 				},
 				position: hexPos,
-				color: "",
+				colorIndex: 0,
 				highlight: null,
+				pieceId: null
 			}
 
 			// set hex color
@@ -66,13 +65,13 @@ export function initGameBoard(hexHeight: number) {
 			const horizontalRow = Math.round(boardHex.position[1] / (hexHeight / 2) + 5)
 
 			if (horizontalRow % 3 === 0) {
-				boardHex.color = selectedColors.value[0]
+				boardHex.colorIndex = 0
 			} else if (horizontalRow % 3 === 1) {
-				boardHex.color = selectedColors.value[1]
+				boardHex.colorIndex = 1
 			} else {
-				boardHex.color = selectedColors.value[2]
+				boardHex.colorIndex = 2
 			}
-
+	
 			game.addBoardPiece(boardHex)
 		}
 	}

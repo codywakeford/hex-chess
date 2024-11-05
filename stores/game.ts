@@ -12,9 +12,11 @@ export const useGameStore = defineStore("game", {
 		board: {
 			checkState: { white: null, black: null },
 			gamePieces: new Map() as GamePieceMap,
-			boardPieces: [] as HexBoardPiece[],
-			selectedBoardPiece: {} as HexBoardPiece | null,
+			boardPieces: new Map() as BoardPieceMap,
+			selectedBoardPiece: {} as BoardPiece | null,
 		} as BoardState,
+
+		selectedColors: classicBoard as string[]
 	}),
 
 	getters: {
@@ -22,18 +24,19 @@ export const useGameStore = defineStore("game", {
 			return state.game
 		},
 
-		getBoard(state) {
-			return state.board || { gamePieces: [], boardPieces: [] }
+		gamePiece: (state) => (boardPosition: BoardPosition) => {
+			const boardPiece = state.board.boardPieces.get(stringPos(boardPosition))
+			
+			const pieceId = boardPiece?.pieceId
+
+
+			if (!pieceId) return null
+
+			return state.board.gamePieces.get(pieceId) || null
 		},
 
-		boardPieces(state) {
-			return state.board.boardPieces || []
-		},
-
-		getBoardPiece: (state) => (positionName: GamePiece["boardPosition"]) => {
-			return state.board.boardPieces.find((piece) => {
-				return piece.boardPosition === positionName
-			})
+		boardPiece: (state) => (boardPosition: BoardPosition) => {
+			return state.board.boardPieces.get(stringPos(boardPosition))
 		},
 	},
 
@@ -49,9 +52,12 @@ export const useGameStore = defineStore("game", {
 
 			pieces.forEach((piece) => {
 				if (!piece.boardPosition) return
-				const posString = stringPos(piece.boardPosition)
+				const boardPiece = this.boardPiece(piece.boardPosition)
+				if (!boardPiece) throw new Error("Board piece not found")
 				
-				this.board.gamePieces.set(posString, piece) // piece id is start pos
+				boardPiece.pieceId = stringPos(piece.boardPosition)
+
+				this.board.gamePieces.set(stringPos(piece.boardPosition), {...piece, pieceId: stringPos(piece.boardPosition)}) // piece id is start pos
 			})
 
 			this.player = gameInstance.playerOne
@@ -134,7 +140,7 @@ export const useGameStore = defineStore("game", {
 			this.board.boardPieces.forEach((hex) => (hex.highlight = null))
 		},
 
-		selectBoardPiece(boardPiece: HexBoardPiece) {
+		selectBoardPiece(boardPiece: BoardPiece) {
 			this.resetBoardHighlights()
 
 			this.board.selectedBoardPiece = boardPiece
@@ -144,17 +150,14 @@ export const useGameStore = defineStore("game", {
 		},
 
 		displayPieceMoves(boardPosition: BoardPosition) {
-			const posString = stringPos(boardPosition)
 
-			if (!posString) {
-				console.error("Board position is null")
-				return
-			}
 
-			const piece = this.board.gamePieces.get(posString)
+			const piece = this.gamePiece(boardPosition)
+			
+
 
 			if (!piece) {
-				this.board.selectedBoardPiece = {} as HexBoardPiece
+				this.board.selectedBoardPiece = {} as BoardPiece
 				return
 			}
 
@@ -191,12 +194,7 @@ export const useGameStore = defineStore("game", {
 			}
 
 			moves.forEach((boardPosition) => {
-				const hex = this.board.boardPieces.find((hex) => {
-					return (
-						hex.boardPosition.x === boardPosition.x &&
-						hex.boardPosition.y === boardPosition.y
-					)
-				})
+				const hex = this.boardPiece(boardPosition)
 
 				if (hex) {
 					hex.highlight = "move"
@@ -214,8 +212,8 @@ export const useGameStore = defineStore("game", {
 			})
 		},
 
-		addBoardPiece(boardPiece: HexBoardPiece) {
-			this.board.boardPieces.push(boardPiece)
+		addBoardPiece(boardPiece: BoardPiece) {
+			this.board.boardPieces.set(stringPos(boardPiece.boardPosition), boardPiece)
 		},
 
 		async joinGame(gameId: string) {
@@ -234,6 +232,12 @@ export const useGameStore = defineStore("game", {
 
 			pieces.forEach((piece) => {
 				if (!piece.boardPosition) return
+				
+				const boardPiece = this.boardPiece(piece.boardPosition)
+				if (!boardPiece) return
+				boardPiece.pieceId = stringPos(piece.boardPosition) 
+				
+				
 				this.board.gamePieces.set(stringPos(piece.boardPosition), piece)
 			})
 
@@ -248,17 +252,23 @@ export const useGameStore = defineStore("game", {
 		async movePiece(toPosition: BoardPosition) {
 			const selectedBoardPiece = this.board.selectedBoardPiece
 			const fromPosition = selectedBoardPiece?.boardPosition
+
+			const boardPiece = this.boardPiece(fromPosition)
+			const gamePiece = this.gamePiece(fromPosition)
+
+			if (boardPiece) {
+				boardPiece.pieceId = null			
+			}
 			
 			if (!selectedBoardPiece || !fromPosition) return
 			
-			const piece = this.board.gamePieces.get(stringPos(fromPosition))
 			
-			if (!piece) {
+			if (!gamePiece) {
 				console.error("Piece not found")
 				return
 			}
 
-			const side = positionContainsPiece(toPosition, this.board, piece.color)
+			const side = positionContainsPiece(toPosition, this.board, gamePiece.color)
 
 			if (side === "enemy") {
 				this.kill(toPosition)
@@ -267,12 +277,14 @@ export const useGameStore = defineStore("game", {
 				new Audio("/move-self.mp3").play()
 			}
 
-			this.board.gamePieces.delete(stringPos(fromPosition))
-			this.board.gamePieces.set(stringPos(toPosition), piece)
+			gamePiece.boardPosition = toPosition
+			
+			
+			const newBoardPiece = this.boardPiece(toPosition)
+			if (newBoardPiece) {
+				newBoardPiece.pieceId = gamePiece.pieceId
+			}
 
-			piece.boardPosition = toPosition
-
-			console.log(toPosition, piece.boardPosition)
 			
 
 			// send update to ws
@@ -291,9 +303,12 @@ export const useGameStore = defineStore("game", {
 		},
 
 		kill(position: BoardPosition) {
-			const pieceToKill = this.board.gamePieces.get(stringPos(position))
+			const pieceToKill = this.gamePiece(position)
+			const boardPiece = this.boardPiece(position)
 
-			if (!pieceToKill || !pieceToKill.boardPosition) return
+			if (!pieceToKill || !pieceToKill.boardPosition || !boardPiece) {
+				throw new Error("Error finding boardPiece or gamePiece")
+			}
 
 			let payload: KillRequest = {
 				type: "kill",
@@ -301,6 +316,7 @@ export const useGameStore = defineStore("game", {
 				gameId: this.game.gameId,
 			}
 
+			boardPiece.pieceId = null
 			pieceToKill.alive = false
 			pieceToKill.boardPosition = null
 

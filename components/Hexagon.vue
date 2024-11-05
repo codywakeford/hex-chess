@@ -6,52 +6,61 @@
 			highlightMove: highlight === 'move',
 			attack: highlight === 'attack',
 		}"
+		:style="{ left: `${hex?.position[0]}px`, bottom: `${hex?.position[1]}px` }"
 	>
 		<div
 			class="hex-piece"
-			@click="handleHexClick(props.hex)"
+			@click="handleHexClick(hex)"
 		/>
 		<div
 			class="hex-piece"
-			@click="handleHexClick(props.hex)"
+			@click="handleHexClick(hex)"
 		/>
 		<div
 			class="hex-piece"
-			@click="handleHexClick(props.hex)"
+			@click="handleHexClick(hex)"
 		/>
-		<div class="piece-name">{{ props.position.x }}{{ props.position.y }}</div>
+		<div class="piece-name">{{ hex.boardPosition.x }}{{ hex.boardPosition.y }}</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 const game = useGameStore()
 
-function selectBoardPiece(boardPiece: HexBoardPiece) {
+function selectBoardPiece(boardPiece: BoardPiece) {
 	game.selectBoardPiece(boardPiece)
 }
 
+const selectedColors = computed(() => {
+	return game.selectedColors
+})
+
 interface Props {
-	color: string
 	height: number
-	position: BoardPosition
-	hex: HexBoardPiece
+	hexId: string
 }
 
-async function handleHexClick(hex: HexBoardPiece) {
+const hex = computed(() => {
+	const hex = game.board.boardPieces.get(props.hexId)
+
+	if (!hex) {
+		throw new Error("Hex piece not found")
+	}
+
+	return hex
+})
+
+async function handleHexClick(hex: BoardPiece) {
 	if (hex.highlight === "move" || hex.highlight === "attack") {
 		await game.movePiece(hex.boardPosition)
 		return
 	}
 
-	selectBoardPiece(props.hex)
+	selectBoardPiece(hex)
 }
 
 const highlight = computed(() => {
-	return boardPiece.value?.highlight || null
-})
-
-const boardPiece = computed(() => {
-	return game.getBoardPiece(props.position)
+	return hex.value?.highlight || null
 })
 
 const hexHeight = computed(() => {
@@ -72,6 +81,10 @@ const offsetTop = computed(() => {
 
 const offsetLeft = computed(() => {
 	return `${props.height / 4.1}px`
+})
+
+const color = computed(() => {
+	return selectedColors.value[hex.value.colorIndex]
 })
 
 const props = defineProps<Props>()

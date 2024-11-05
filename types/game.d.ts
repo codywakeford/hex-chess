@@ -14,7 +14,7 @@ declare global {
 
 	interface BoardState {
 		/**Contains information about the board piece, its position and so on. */
-		boardPieces: HexBoardPiece[]
+		boardPieces: BoardPieceMap
 		gamePieces: GamePieceMap
 		selectedBoardPiece: HexBoardPiece | null
 		checkState: CheckState
@@ -22,7 +22,7 @@ declare global {
 
 	/** Sent Apon Create Request */
 	interface CreateBoardState {
-		boardPieces: HexBoardPiece[]
+		boardPieces: BoardPiece[]
 		gamePieces: GamePiece[]
 		selectedBoardPiece: HexBoardPiece | null
 		checkState: CheckState
@@ -35,21 +35,27 @@ declare global {
 		turn: GamePieceColor
 	}
 
+	interface BoardPieceMap extends Map<string, BoardPiece> {}
+
 	interface Player {
 		id: string
 		color: "white" | "black"
 	}
 
-	interface HexBoardPiece {
+	interface BoardPiece {
 		boardPosition: BoardPosition
 
 		highlight: null | "move" | "attack" | "selected"
 
 		/**Position in px */
 		position: number[]
+		colorIndex: number
 
-		color: string
+		/**Stores the id of the piece on the hex. */
+		pieceId: string | null
 	}
+
+
 
 	interface checkState {
 		white: null | "check" | "checkmate"

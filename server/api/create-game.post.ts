@@ -25,7 +25,7 @@ export default eventHandler(async (event) => {
 	const boardState: CreateBoardState = {
 		gamePieces: startingPieces,
 		selectedBoardPiece: null,
-		boardPieces: [] as HexBoardPiece[],
+		boardPieces: [] as BoardPiece[],
 		checkState: { white: null, black: null },
 	}
 

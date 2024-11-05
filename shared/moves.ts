@@ -285,11 +285,13 @@ export function getDiagonalPaths(
 		let cursorPos = position
 
 		let isOutOfBounds = false
-		while (!isOutOfBounds) {
-			diagonalHexagons.push(cursorPos)
-			cursorPos = _function(cursorPos)
 
-			isOutOfBounds = outOfBounds(cursorPos, boardState)
+		while (!isOutOfBounds) {
+			cursorPos = _function(cursorPos)
+			diagonalHexagons.push(cursorPos)
+			
+			if (outOfBounds(cursorPos, boardState)) return 
+			
 			const side = positionContainsPiece(cursorPos, boardState, color)
 
 			if (side === "enemy") {
@@ -308,12 +310,8 @@ export function getDiagonalPaths(
  * Check if there's any matching board piece //
  */
 export function outOfBounds(position: BoardPosition, boardState: BoardState): boolean {
-	// const boardPiecesNonReactive = [...boardPieces] // to prevent reactivity loop
 
-	const isInBounds = boardState.boardPieces.some(
-		(boardPiece) =>
-			boardPiece.boardPosition.x === position.x && boardPiece.boardPosition.y === position.y,
-	)
+	const isInBounds = boardState.boardPieces.has(stringPos(position))
 
 	return !isInBounds
 }
@@ -323,11 +321,20 @@ export function positionContainsPiece(
 	boardState: BoardState,
 	color: GamePieceColor,
 ): Side {
-	const containsPiece = boardState.gamePieces.get(stringPos(position))
+	console.log(position)
+	const boardPiece = boardState.boardPieces.get(stringPos(position))
+	
+	if(!boardPiece) {
+		throw new Error("Error finding board piece")
+	}
 
-	if (!containsPiece) return null
+	if (!boardPiece.pieceId) return null
 
-	if (containsPiece.color === color) return "ally"
+	const gamePiece = boardState.gamePieces.get(boardPiece.pieceId)
+
+	if (!gamePiece) throw new Error("Piece not found at provided ID.")
+
+	if (gamePiece.color === color) return "ally"
 
 	return "enemy"
 }

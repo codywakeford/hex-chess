@@ -2,8 +2,7 @@
 	<main>
 		<h1>Gliński's Chess</h1>
 		<h5>Game ID: {{ game.game.gameId }}</h5>
-		<pre>123123{{ mapPiece }}</pre>
-		<!-- <pre>{{ game.board.gamePieces.get(stringPos(mapPiece?.boardPosition)) }}</pre> -->
+		<!-- <pre>{{ map }}</pre> -->
 		<Board :height="boardHeight" />
 
 		<div class="control-panel">
@@ -20,7 +19,8 @@
 				</div>
 			</div>
 
-			<!-- <button @click="playAudio2()">p-lay aud</button> -->
+			<button @click="game.selectedColors = classicBoard">Change color</button>
+			<button @click="game.selectedColors = classicBoard">grey color</button>
 		</div>
 
 		<p class="source-code">
@@ -37,10 +37,6 @@
 <script lang="ts" setup>
 const game = useGameStore()
 
-const mapPiece = computed(() => {
-	return game.board.selectedBoardPiece
-})
-
 const boardHeight = computed(() => {
 	const windowWidth = window.innerWidth
 	const windowHeight = window.innerHeight
@@ -49,7 +45,9 @@ const boardHeight = computed(() => {
 })
 
 const gameId = ref("")
-
+const map = computed(() => {
+	return game.board.boardPieces
+})
 onMounted(() => {
 	game.init()
 })
