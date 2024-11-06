@@ -1,12 +1,14 @@
 import { gameInstances } from "../cache"
-export default eventHandler(async (event) => {
+import { convertGameInstanceForClient } from "../utils"
+export default eventHandler(async (event): Promise<TransmissionGameInstance | null> => {
 	const gameId = event.context.params?.gameId
 
-	if (!gameId) return
+	if (!gameId) return null
 
 	const game = gameInstances.get(gameId)
 
-	if (game) return game
+	const transmittableGameInstance = convertGameInstanceForClient(gameId)
+	if (game) return transmittableGameInstance
 
-	return undefined
+	return null
 })

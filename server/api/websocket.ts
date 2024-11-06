@@ -1,4 +1,6 @@
 import { gameInstances } from "~/server/cache"
+import { startingPieces } from "../hardData"
+import { setPiecesToStartPositions } from "../utils"
 
 export default defineWebSocketHandler({
 	open(peer) {
@@ -53,6 +55,10 @@ export default defineWebSocketHandler({
 		const payload = message.toString()
 		peer.publish(request.gameId, payload)
 
+		if (request.type === "restart") {
+			restartGame(request)
+		}
+
 		if (request.type === "move") {
 			moveGamePiece(request)
 		}
@@ -68,16 +74,14 @@ export default defineWebSocketHandler({
 	},
 })
 
+function restartGame(request: RestartRequest) {
+	setPiecesToStartPositions(request.gameId)
+}
+
 function getPieceByBoardPosition(gameId: string, boardPosition: BoardPosition) {
 	const game = gameInstances.get(gameId)
 
-	const piece = game?.boardState.gamePieces.find((piece) => {
-		return (
-			piece.boardPosition &&
-			piece.boardPosition.x === boardPosition.x &&
-			piece.boardPosition.y === boardPosition.y
-		)
-	})
+	const piece = game?.boardState.gamePieces.get(stringPos(boardPosition))
 	console.log(piece)
 	return piece || undefined
 }

@@ -29,6 +29,11 @@ declare global {
 		gameId: string
 	}
 
+	interface RestartRequest {
+		type: "restart"
+		gameId: string
+	}
+
 	type WebsocketMessageResponse = WebsocketMessageRequest | JoinResponse
 
 	/**The response when player two joins your game. */

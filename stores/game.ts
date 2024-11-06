@@ -1,15 +1,25 @@
 import { useWebSocket } from "@vueuse/core"
 import { positionContainsPiece } from "~/shared/moves"
+import { generateUniqueId } from "~/shared/utils"
 
 export const useGameStore = defineStore("game", {
 	state: () => ({
-		game: {} as GameState,
+		game: {
+			gameId: "",
+			playerOne: {},
+			playerTwo: null,
+			playBoth: false,
+		} as GameState,
 
 		websocket: {} as GameWebsocket,
 
-		player: {} as Player,
+		player: {
+			id: "",
+			color: "white",
+		} as Player,
 
 		board: {
+			turn: "white" as GamePieceColor,
 			checkState: { white: null, black: null },
 			gamePieces: new Map() as GamePieceMap,
 			boardPieces: new Map() as BoardPieceMap,
@@ -47,44 +57,26 @@ export const useGameStore = defineStore("game", {
 		boardPiece: (state) => (boardPosition: BoardPosition) => {
 			return state.board.boardPieces.get(stringPos(boardPosition))
 		},
+
+		isPlayersTurn(state) {
+			return state.player.color === state.board.turn
+		},
 	},
 
 	actions: {
 		async init() {
-			const gameInstance = await $fetch<GameInstance>("/api/create-game", {
-				method: "post",
-			})
+			let cachedGameId = this.cachedGame()
+			const gameId = cachedGameId ? cachedGameId : generateUniqueId()
+			const newGame = cachedGameId ? false : true
 
-			if (!gameInstance) return
+			this.getGame(gameId, newGame)
 
-			const pieces = gameInstance.boardState.gamePieces
-
-			pieces.forEach((piece) => {
-				if (!piece.boardPosition) return
-				const boardPiece = this.boardPiece(piece.boardPosition)
-				if (!boardPiece) throw new Error("Board piece not found")
-
-				boardPiece.pieceId = stringPos(piece.boardPosition)
-
-				this.board.gamePieces.set(stringPos(piece.boardPosition), {
-					...piece,
-					pieceId: stringPos(piece.boardPosition),
-				}) // piece id is start pos
-			})
-
-			this.player = gameInstance.playerOne
-
-			this.game = {
-				gameId: gameInstance.id,
-				playerOne: gameInstance.playerOne,
-				playerTwo: gameInstance.playerTwo,
-				turn: "white",
-			}
-
-			this.initWebsocket()
+			this.initWebsocket(gameId)
+			localStorage.setItem("gameId", JSON.stringify(gameId.trim()))
 		},
 
-		initWebsocket(gameId?: string, playerId?: string) {
+		/**Connect to websocket and define listener functions. */
+		initWebsocket(gameId: string, playerId?: string) {
 			let _gameId: string
 
 			if (gameId) {
@@ -128,24 +120,69 @@ export const useGameStore = defineStore("game", {
 						pieceEnd,
 					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
 
-					const piece = this.board.gamePieces.get(stringPos(pieceStart))
+					const gamePiece = this.board.gamePieces.get(stringPos(pieceStart))
+					const startBoardPiece = this.board.boardPieces.get(stringPos(pieceStart))
+					const endBoardPiece = this.board.boardPieces.get(stringPos(pieceEnd))
 
-					if (!piece) {
+					if (!gamePiece || !gamePiece.boardPosition) {
 						console.error("No piece found.")
 						return
 					}
 
-					piece.boardPosition = pieceEnd
+					if (!startBoardPiece || !endBoardPiece) {
+						throw new Error("Board piece not found.")
+					}
+
+					startBoardPiece.pieceId = null
+					endBoardPiece.pieceId = stringPos(gamePiece.boardPosition)
+
+					gamePiece.boardPosition = pieceEnd
+					this.changeTurn(this.board.turn)
 				}
 
 				if (response.type === "join") {
 					this.game.playerTwo = response.playerTwo
 				}
+
+				if (response.type === "restart") {
+					console.log("restarting game")
+					this.getGame(this.game.gameId)
+				}
 			})
 		},
 
-		restartGame() {
-			;(this.game = {} as GameState), (this.websocket = {} as GameWebsocket), this.init()
+		cachedGame(): string | null {
+			let gameId
+			if (import.meta.client) {
+				const gameIdCache = localStorage.getItem("gameId")
+
+				if (gameIdCache) {
+					try {
+						gameId = JSON.parse(gameIdCache)
+					} catch (error) {
+						console.error(error)
+					}
+				}
+			}
+
+			return gameId
+		},
+
+		async restartGame() {
+			// send update to ws
+			const payload: RestartRequest = {
+				type: "restart",
+				gameId: this.game.gameId,
+			}
+			const payloadString = JSON.stringify(payload)
+			this.websocket.send(payloadString)
+
+			this.getGame(this.game.gameId, false)
+		},
+
+		leaveGame() {
+			localStorage.removeItem("gameId")
+			this.init()
 		},
 
 		resetBoardHighlights() {
@@ -165,7 +202,12 @@ export const useGameStore = defineStore("game", {
 			const piece = this.gamePiece(boardPosition)
 
 			if (!piece) {
-				this.board.selectedBoardPiece = {} as BoardPiece
+				this.board.selectedBoardPiece = null
+				return
+			}
+
+			if (piece.color !== this.player.color && !this.game.playBoth) {
+				this.board.selectedBoardPiece = null
 				return
 			}
 
@@ -196,20 +238,45 @@ export const useGameStore = defineStore("game", {
 			this.board.boardPieces.set(stringPos(boardPiece.boardPosition), boardPiece)
 		},
 
-		async joinGame(gameId: string) {
-			this.initWebsocket(gameId, this.player.id)
+		/**Get a game instance from server and update local state. */
+		async getGame(gameId: string, newGame: boolean = false) {
+			this.board.gamePieces.clear()
+			let gameInstance: TransmissionGameInstance | null = null
 
-			const gameInstance = await $fetch<GameInstance>(`/api/${gameId}`, {
-				method: "GET",
-			})
+			if (newGame) {
+				gameInstance = await $fetch<TransmissionGameInstance>("/api/create-game", {
+					method: "post",
+					body: { gameId: gameId },
+				})
+			} else {
+				gameInstance = await $fetch<TransmissionGameInstance | null>(`/api/${gameId}`, {
+					method: "GET",
+				})
+			}
 
+			// fallback
 			if (!gameInstance) {
-				console.error("No game found for given ID")
+				localStorage.removeItem("gameId")
+				this.getGame(gameId, true)
 				return
 			}
 
-			const pieces = gameInstance.boardState.gamePieces
+			this.updatePiecesState(gameInstance.boardState.gamePieces)
 
+			this.game = {
+				gameId: gameInstance.id,
+				playerOne: gameInstance.playerOne,
+				playerTwo: gameInstance.playerTwo,
+				playBoth: true,
+			}
+
+			this.player = gameInstance.playerOne
+			// if (gameInstance.playerOne && gameInstance.playerTwo) {
+			// 	this.player = join ? gameInstance.playerTwo : gameInstance.playerOne
+			// }
+		},
+
+		updatePiecesState(pieces: GamePiece[]) {
 			pieces.forEach((piece) => {
 				if (!piece.boardPosition) return
 
@@ -219,13 +286,12 @@ export const useGameStore = defineStore("game", {
 
 				this.board.gamePieces.set(stringPos(piece.boardPosition), piece)
 			})
+		},
 
-			this.game = {
-				gameId: gameInstance.id,
-				playerOne: gameInstance.playerOne,
-				playerTwo: gameInstance.playerTwo,
-				turn: "white",
-			}
+		changeTurn(currentTurn: GamePieceColor) {
+			const nextTurnColor = getEnemyColor(currentTurn)
+			console.log("hereer")
+			this.board.turn = nextTurnColor
 		},
 
 		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition) {
@@ -238,23 +304,24 @@ export const useGameStore = defineStore("game", {
 		},
 
 		async movePiece(toPosition: BoardPosition) {
+			if (!this.isPlayersTurn && !this.game.playBoth) return
+
 			const selectedBoardPiece = this.board.selectedBoardPiece
-			const fromPosition = selectedBoardPiece?.boardPosition
+			if (!selectedBoardPiece) return
+			const fromPosition = selectedBoardPiece.boardPosition
+			if (!selectedBoardPiece && fromPosition) throw new Error("Board piece not found.")
+
 			this.updateLatestMove(fromPosition, toPosition)
+			this.changeTurn(this.board.turn)
 
 			const boardPiece = this.boardPiece(fromPosition)
 			const gamePiece = this.gamePiece(fromPosition)
 
-			if (boardPiece) {
-				boardPiece.pieceId = null
-			}
+			if (boardPiece) boardPiece.pieceId = null // reset previous hex piece id .
 
 			if (!selectedBoardPiece || !fromPosition) return
 
-			if (!gamePiece) {
-				console.error("Piece not found")
-				return
-			}
+			if (!gamePiece) throw new Error("Piece not found")
 
 			const side = positionContainsPiece(toPosition, this.board, gamePiece.color)
 
@@ -279,14 +346,12 @@ export const useGameStore = defineStore("game", {
 				pieceEnd: toPosition,
 				gameId: this.game.gameId,
 			}
-
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
+
 			this.resetBoardHighlights()
 
-			this.checkCheck(toPosition) // TODO: check if enemy is now in check
-
-			// this.onMove()
+			this.checkCheck(toPosition)
 		},
 
 		kill(position: BoardPosition) {
@@ -312,7 +377,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		checkCheck(lastMove: BoardPosition) {
-			const defenderColor = this.game.turn === "white" ? "black" : "white"
+			const defenderColor = getEnemyColor(this.board.turn) // check if the enemy is check before their turn.
 
 			const check = isCheck(this.board, defenderColor, lastMove)
 
@@ -324,9 +389,6 @@ export const useGameStore = defineStore("game", {
 			this.board.checkState[defenderColor] = "check"
 
 			const checkmate = isCheckmate(this.board, defenderColor)
-
-			// console.log(checkmate)
-
 			if (!checkmate) return // leave king in check
 
 			this.board.checkState[defenderColor] = "checkmate"

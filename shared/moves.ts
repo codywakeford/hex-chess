@@ -324,7 +324,8 @@ export function positionContainsPiece(
 	const boardPiece = boardState.boardPieces.get(stringPos(position))
 
 	if (!boardPiece) {
-		throw new Error("Error finding board piece")
+		console.error("Error finding board piece.")
+		return null
 	}
 
 	if (!boardPiece.pieceId) return null

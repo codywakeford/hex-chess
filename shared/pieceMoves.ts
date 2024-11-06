@@ -43,7 +43,6 @@ export function kingMoves(
 ): BoardPosition[] {
 	let kingMoves: BoardPosition[] = []
 
-	
 	// one move in any direction
 	const moveFunctions = [
 		iterateBottomRight,
@@ -93,8 +92,10 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 	}
 
 	diagonalsToCheck.forEach((boardPosition) => {
-		if (positionContainsPiece(boardPosition, boardState, color)) {
-			pawnMoves.push(boardPosition)
+		if (!outOfBounds(boardPosition, boardState)) {
+			if (positionContainsPiece(boardPosition, boardState, color)) {
+				pawnMoves.push(boardPosition)
+			}
 		}
 	})
 
@@ -105,16 +106,18 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 		})
 
 		let positionUp = iterateUp(position)
-		const positionUpContainsPiece = positionContainsPiece(positionUp, boardState, color)
+		if (!outOfBounds(positionUp, boardState)) {
+			const positionUpContainsPiece = positionContainsPiece(positionUp, boardState, color)
 
-		if (!positionUpContainsPiece) {
-			pawnMoves.push(positionUp)
-		}
-
-		if (canMoveTwice && !positionUpContainsPiece) {
-			positionUp = iterateUp(positionUp)
-			if (!positionContainsPiece(positionUp, boardState, color)) {
+			if (!positionUpContainsPiece) {
 				pawnMoves.push(positionUp)
+			}
+
+			if (canMoveTwice && !positionUpContainsPiece) {
+				positionUp = iterateUp(positionUp)
+				if (!positionContainsPiece(positionUp, boardState, color)) {
+					pawnMoves.push(positionUp)
+				}
 			}
 		}
 	}
@@ -126,16 +129,18 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 		})
 
 		let positionDown = iterateDown(position)
-		const positionDownContainsPiece = positionContainsPiece(positionDown, boardState, color)
+		if (!outOfBounds(positionDown, boardState)) {
+			const positionDownContainsPiece = positionContainsPiece(positionDown, boardState, color)
 
-		if (!positionDownContainsPiece) {
-			pawnMoves.push(positionDown)
-		}
-
-		if (canMoveTwice && !positionDownContainsPiece) {
-			positionDown = iterateDown(positionDown)
-			if (!positionContainsPiece(positionDown, boardState, color)) {
+			if (!positionDownContainsPiece) {
 				pawnMoves.push(positionDown)
+			}
+
+			if (canMoveTwice && !positionDownContainsPiece) {
+				positionDown = iterateDown(positionDown)
+				if (!positionContainsPiece(positionDown, boardState, color)) {
+					pawnMoves.push(positionDown)
+				}
 			}
 		}
 	}

@@ -6,6 +6,7 @@
 				class="hexagon"
 				:height="hexHeight"
 				:hexId="hexId"
+				:class="{ flip: playerColor === 'black' }"
 			/>
 
 			<Piece
@@ -19,6 +20,12 @@
 
 <script setup lang="ts">
 const game = useGameStore()
+
+const playerColor = computed(() => {
+	if (!game.player.color) return "black"
+
+	return game.player.color
+})
 
 const gamePieceIds = computed(() => {
 	return Array.from(game.board.gamePieces.keys())
@@ -62,6 +69,8 @@ onMounted(async () => {
 	bottom: v-bind(boardOffset)
 	margin-inline: auto
 	user-select: none
+
+
 
 .hexagon
 	cursor: pointer

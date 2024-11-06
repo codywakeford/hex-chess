@@ -80,7 +80,10 @@ export function isCheck(
 	defenderColor: GamePieceColor,
 	enemyNewPosition: BoardPosition,
 ) {
-	const enemyPieceId = boardState.boardPieces.get(stringPos(enemyNewPosition))?.pieceId
+	const boardPiece = boardState.boardPieces.get(stringPos(enemyNewPosition))
+	if (!boardPiece) throw new Error("Board piece not found")
+
+	const enemyPieceId = boardPiece.pieceId
 	if (!enemyPieceId) throw new Error("Enemy Piece id not defined:")
 
 	const enemyPiece = boardState.gamePieces.get(enemyPieceId) // only the last moved piece is checked to see if they challenge the king
@@ -97,9 +100,6 @@ export function isCheck(
 
 	if (!kingPosition) throw new Error("King not found")
 	if (!attackerPath) throw new Error("attacker path not found")
-
-	console.log(kingPosition)
-	// console.log(attackerPath)
 
 	const check = attackerPath.some((position) => {
 		return position.x === kingPosition.x && position.y === kingPosition.y

@@ -1,16 +1,17 @@
 <template>
 	<main>
 		<h1>Gliński's Chess</h1>
+
 		<h5>Game ID: {{ game.game.gameId }}</h5>
-		<pre>{{ game.board.checkState }}</pre>
-		<!-- <pre>{{ map }}</pre> -->
+		<pre>Player: {{ game.player.color }}</pre>
+		<pre>Turn:{{ turn }}</pre>
 		<Board :height="boardHeight" />
 
 		<div class="control-panel">
-			<button>Leave Game</button>
-			<button @click="game.restartGame()">Restart Game</button>
+			<button @click="game.leaveGame">Leave Game</button>
+			<button @click="restart()">Restart Game</button>
 			<div class="join-game">
-				<button @click="game.joinGame(gameId)">Join-Game</button>
+				<button @click="game.getGame(gameId, false)">Join-Game</button>
 				<div class="join-game">
 					<input
 						placeholder="Enter a game ID to join."
@@ -32,13 +33,15 @@
 				>Here</nuxt-link
 			>
 		</p>
-
-		<pre>{{ game.board.paths }}</pre>
 	</main>
 </template>
 
 <script lang="ts" setup>
 const game = useGameStore()
+
+async function restart() {
+	await game.restartGame()
+}
 
 const boardHeight = computed(() => {
 	const windowWidth = window.innerWidth
@@ -48,8 +51,8 @@ const boardHeight = computed(() => {
 })
 
 const gameId = ref("")
-const map = computed(() => {
-	return game.board.boardPieces
+const turn = computed(() => {
+	return game.board.turn
 })
 onMounted(() => {
 	game.init()

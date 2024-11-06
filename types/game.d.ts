@@ -7,33 +7,53 @@ declare global {
 		playerOne: Player
 		playerTwo: Player | null
 
-		boardState: CreateBoardState
+		boardState: BoardState
 	}
 
-	type GameInstanceCache = Map<string, GameInstance>
+	interface TransmissionGameInstance extends GameInstance {
+		boardState: TransmissionBoardState
+	}
+
+	/**Id is game id */
+	type GameInstanceCache = Map<string, ServerGameInstance>
 
 	interface BoardState {
 		/**Contains information about the board piece, its position and so on. */
 		boardPieces: BoardPieceMap
 		gamePieces: GamePieceMap
-		selectedBoardPiece: HexBoardPiece | null
+		selectedBoardPiece: BoardPiece | null
 		checkState: CheckState
 		latestMoves: LatestMoves
+		turn: GamePieceColor
+	}
+
+	interface ServerBoardState extends BoardState {
+		gamePieces: Map<string, GamePiece>
+		boardPieces: Map<string, BoardPiece>
 	}
 
 	/** Sent Apon Create Request */
-	interface CreateBoardState {
+	interface TransmissionBoardState {
 		boardPieces: BoardPiece[]
 		gamePieces: GamePiece[]
 		selectedBoardPiece: HexBoardPiece | null
 		checkState: CheckState
+		latestMoves: LatestMoves
+		turn: GamePieceColor
+	}
+
+	interface selectedBoardPiece {
+		boardPosition: BoardPosition
+		highlight: "selected" | "attack" | "move" | null
 	}
 
 	interface GameState {
 		gameId: string
 		playerOne: Player
 		playerTwo: Player | null
-		turn: GamePieceColor
+
+		/**Allows one player to play both sides. */
+		playBoth: boolean
 	}
 
 	interface BoardPieceMap extends Map<string, BoardPiece> {}

@@ -90,6 +90,10 @@ export function getPathBetweenPositions(
 	return positionFound ? Array.from(path) : []
 }
 
+export function generateUniqueId() {
+	return `${Date.now()}-${Math.floor(Math.random() * 10000)}`
+}
+
 /**Given a board position, this function returns a list of pieces that can reach that board position. */
 export function getAttackingPieceFromPath(
 	boardPosition: BoardPosition,
