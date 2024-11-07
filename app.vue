@@ -20,11 +20,20 @@
 					/>
 				</div>
 			</div>
-
-			<button @click="game.selectedColors = classicBoard">Change color</button>
-			<button @click="game.selectedColors = classicBoard">grey color</button>
 		</div>
-
+		<select
+			name="colorWave"
+			id="colorWave"
+			@input="updateColor()"
+			v-model="selectedColors"
+		>
+			<option
+				v-for="(value, name) in colorWaves"
+				:value="value"
+			>
+				{{ name }}
+			</option>
+		</select>
 		<p class="source-code">
 			This is an open source project. Find the source code
 			<nuxt-link
@@ -37,7 +46,14 @@
 </template>
 
 <script lang="ts" setup>
+import { colorWaves } from "./composables/colorWaves"
+
 const game = useGameStore()
+const selectedColors = ref([])
+
+function updateColor() {
+	game.selectedColors = selectedColors.value
+}
 
 async function restart() {
 	await game.restartGame()
@@ -63,11 +79,13 @@ onMounted(() => {
 html
 	background: #333
 	color: white
-	height: 100vh
+	// height: 100vh
+
 
 main
 	width: 100%
-	height: 100vh
+	// height: 100vh
+	padding-bottom: 100px
 	align-items: center
 	display: flex
 	flex-direction: column

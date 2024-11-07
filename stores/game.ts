@@ -36,7 +36,7 @@ export const useGameStore = defineStore("game", {
 			} as LatestMoves,
 		} as BoardState,
 
-		selectedColors: classicBoard as string[],
+		selectedColors: colorWaves.classicBoard as string[],
 	}),
 
 	getters: {
@@ -44,7 +44,15 @@ export const useGameStore = defineStore("game", {
 			return state.game
 		},
 
-		gamePiece: (state) => (boardPosition: BoardPosition) => {
+		getGamePieces(state) {
+			return state.board.gamePieces
+		},
+
+		getBoardPieces(state) {
+			return state.board.boardPieces
+		},
+
+		getGamePiece: (state) => (boardPosition: BoardPosition) => {
 			const boardPiece = state.board.boardPieces.get(stringPos(boardPosition))
 
 			const pieceId = boardPiece?.pieceId
@@ -54,7 +62,7 @@ export const useGameStore = defineStore("game", {
 			return state.board.gamePieces.get(pieceId) || null
 		},
 
-		boardPiece: (state) => (boardPosition: BoardPosition) => {
+		getBoardPiece: (state) => (boardPosition: BoardPosition) => {
 			return state.board.boardPieces.get(stringPos(boardPosition))
 		},
 
@@ -121,8 +129,8 @@ export const useGameStore = defineStore("game", {
 					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
 
 					const gamePiece = this.board.gamePieces.get(stringPos(pieceStart))
-					const startBoardPiece = this.board.boardPieces.get(stringPos(pieceStart))
-					const endBoardPiece = this.board.boardPieces.get(stringPos(pieceEnd))
+					const startBoardPiece = this.getBoardPieces.get(stringPos(pieceStart))
+					const endBoardPiece = this.getBoardPieces.get(stringPos(pieceEnd))
 
 					if (!gamePiece || !gamePiece.boardPosition) {
 						console.error("No piece found.")
@@ -199,7 +207,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		displayPieceMoves(boardPosition: BoardPosition) {
-			const piece = this.gamePiece(boardPosition)
+			const piece = this.getGamePiece(boardPosition)
 
 			if (!piece) {
 				this.board.selectedBoardPiece = null
@@ -216,7 +224,7 @@ export const useGameStore = defineStore("game", {
 			if (!path) return // no moves available
 
 			path.forEach((boardPosition) => {
-				const hex = this.boardPiece(boardPosition)
+				const hex = this.getBoardPiece(boardPosition)
 
 				if (hex) {
 					hex.highlight = "move"
@@ -276,11 +284,26 @@ export const useGameStore = defineStore("game", {
 			// }
 		},
 
+		resetBoardPiecesPieceId() {
+			const boardPieces = this.getBoardPieces
+			const boardPieceIds = Array.from(boardPieces.keys())
+
+			boardPieceIds.forEach((id) => {
+				const boardPiece = boardPieces.get(id)
+
+				if (!boardPiece) throw new Error("Not found.")
+
+				boardPiece.pieceId = null
+			})
+		},
+
 		updatePiecesState(pieces: GamePiece[]) {
+			this.resetBoardPiecesPieceId()
+
 			pieces.forEach((piece) => {
 				if (!piece.boardPosition) return
 
-				const boardPiece = this.boardPiece(piece.boardPosition)
+				const boardPiece = this.getBoardPiece(piece.boardPosition)
 				if (!boardPiece) return
 				boardPiece.pieceId = stringPos(piece.boardPosition)
 
@@ -295,7 +318,7 @@ export const useGameStore = defineStore("game", {
 		},
 
 		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition) {
-			const piece = this.gamePiece(fromPos)
+			const piece = this.getGamePiece(fromPos)
 
 			if (!piece) throw new Error("No piece found.")
 
@@ -314,8 +337,8 @@ export const useGameStore = defineStore("game", {
 			this.updateLatestMove(fromPosition, toPosition)
 			this.changeTurn(this.board.turn)
 
-			const boardPiece = this.boardPiece(fromPosition)
-			const gamePiece = this.gamePiece(fromPosition)
+			const boardPiece = this.getBoardPiece(fromPosition)
+			const gamePiece = this.getGamePiece(fromPosition)
 
 			if (boardPiece) boardPiece.pieceId = null // reset previous hex piece id .
 
@@ -327,14 +350,14 @@ export const useGameStore = defineStore("game", {
 
 			if (side === "enemy") {
 				this.kill(toPosition)
-				new Audio("/capture.mp3").play().catch()
+				playSound("kill")
 			} else {
-				new Audio("/move-self.mp3").play().catch()
+				playSound("move")
 			}
 
 			gamePiece.boardPosition = toPosition
 
-			const newBoardPiece = this.boardPiece(toPosition)
+			const newBoardPiece = this.getBoardPiece(toPosition)
 			if (newBoardPiece) {
 				newBoardPiece.pieceId = gamePiece.pieceId
 			}
@@ -355,8 +378,8 @@ export const useGameStore = defineStore("game", {
 		},
 
 		kill(position: BoardPosition) {
-			const pieceToKill = this.gamePiece(position)
-			const boardPiece = this.boardPiece(position)
+			const pieceToKill = this.getGamePiece(position)
+			const boardPiece = this.getBoardPiece(position)
 
 			if (!pieceToKill || !pieceToKill.boardPosition || !boardPiece) {
 				throw new Error("Error finding boardPiece or gamePiece")
