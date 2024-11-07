@@ -4,7 +4,7 @@ declare global {
 	interface GameInstance {
 		id: string
 
-		playerOne: Player
+		playerOne: Player | null
 		playerTwo: Player | null
 
 		boardState: BoardState
@@ -49,7 +49,7 @@ declare global {
 
 	interface GameState {
 		gameId: string
-		playerOne: Player
+		playerOne: Player | null
 		playerTwo: Player | null
 
 		/**Allows one player to play both sides. */

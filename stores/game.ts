@@ -1,4 +1,4 @@
-import { useWebSocket } from "@vueuse/core"
+import { onClickOutside, useWebSocket } from "@vueuse/core"
 import { positionContainsPiece } from "~/shared/moves"
 import { generateUniqueId } from "~/shared/utils"
 
@@ -6,7 +6,7 @@ export const useGameStore = defineStore("game", {
 	state: () => ({
 		game: {
 			gameId: "",
-			playerOne: {},
+			playerOne: null,
 			playerTwo: null,
 			playBoth: false,
 		} as GameState,
@@ -36,6 +36,7 @@ export const useGameStore = defineStore("game", {
 			} as LatestMoves,
 		} as BoardState,
 
+		// Default
 		selectedColors: colorWaves.classicBoard as string[],
 	}),
 
@@ -73,18 +74,27 @@ export const useGameStore = defineStore("game", {
 
 	actions: {
 		async init() {
+			if (!import.meta.client) return
+
 			let cachedGameId = this.cachedGame()
 			const gameId = cachedGameId ? cachedGameId : generateUniqueId()
 			const newGame = cachedGameId ? false : true
 
-			this.getGame(gameId, newGame)
+			const cachedPlayerId = this.cachedPlayer()
+			const playerId = cachedPlayerId ? cachedPlayerId : generateUniqueId()
 
-			this.initWebsocket(gameId)
+			await this.getGame(gameId, newGame)
+			this.initWebsocket(gameId, playerId)
+
+			console.log(playerId)
+
+			this.player.id = playerId
+			localStorage.setItem("playerId", JSON.stringify(playerId.trim()))
 			localStorage.setItem("gameId", JSON.stringify(gameId.trim()))
 		},
 
 		/**Connect to websocket and define listener functions. */
-		initWebsocket(gameId: string, playerId?: string) {
+		initWebsocket(gameId: string, playerId: string) {
 			let _gameId: string
 
 			if (gameId) {
@@ -93,33 +103,33 @@ export const useGameStore = defineStore("game", {
 				_gameId = this.game.gameId
 			}
 
+			if (!playerId) throw new Error("player not found")
+
+			const wsPrefix = process.env.NODE_ENV === "production" ? "wss" : "ws"
 			const { data, status, open, close, send, ws } = useWebSocket(
-				`ws://${location.host}/api/websocket?gameId=${_gameId}&playerId=${playerId}`,
+				`${wsPrefix}://${location.host}/api/websocket?gameId=${_gameId}&playerId=${playerId}`,
 			)
 
-			this.websocket = {
-				data,
-				status,
-				open,
-				close,
-				send,
-				ws,
-			}
+			this.websocket = { data, status, open, close, send, ws }
+
+			// if (status.value !== "OPEN") throw new Error("Websocket connection failed.")
 
 			watch(data, (newValue) => {
-				const response = JSON.parse(newValue)
+				console.log(newValue)
+				const response = JSON.parse(newValue) as WebsocketResponse
 
 				if (response.type === "kill") {
-					const { piecePosition }: { piecePosition: BoardPosition } = response
+					const boardPiece = this.getBoardPieces.get(stringPos(response.piecePosition))
+					const piece = this.getGamePieces.get(response.pieceId)
 
-					const piece = this.board.gamePieces.get(stringPos(piecePosition))
-
-					if (piece) {
-						piece.alive = false
-						piece.boardPosition = null
-
-						return
+					if (!piece || !boardPiece) {
+						throw new Error("Board and Game Pieces not found.")
 					}
+
+					boardPiece.pieceId = null
+
+					piece.alive = false
+					piece.boardPosition = null
 				}
 
 				if (response.type === "move") {
@@ -128,17 +138,18 @@ export const useGameStore = defineStore("game", {
 						pieceEnd,
 					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
 
-					const gamePiece = this.board.gamePieces.get(stringPos(pieceStart))
 					const startBoardPiece = this.getBoardPieces.get(stringPos(pieceStart))
 					const endBoardPiece = this.getBoardPieces.get(stringPos(pieceEnd))
+
+					if (!startBoardPiece || !endBoardPiece || !startBoardPiece.pieceId) {
+						throw new Error("Board piece not found.")
+					}
+
+					const gamePiece = this.getGamePieces.get(startBoardPiece.pieceId)
 
 					if (!gamePiece || !gamePiece.boardPosition) {
 						console.error("No piece found.")
 						return
-					}
-
-					if (!startBoardPiece || !endBoardPiece) {
-						throw new Error("Board piece not found.")
 					}
 
 					startBoardPiece.pieceId = null
@@ -149,14 +160,48 @@ export const useGameStore = defineStore("game", {
 				}
 
 				if (response.type === "join") {
-					this.game.playerTwo = response.playerTwo
+					console.log("join response", response)
+					if (response.player === null) return // game is full
+
+					this.player.color = response.player.color
+
+					const playerNumber = response.playerNumber
+					if (playerNumber === 1) {
+						this.game.playerOne === response.player
+					} else {
+						this.game.playerTwo === response.player
+					}
 				}
 
 				if (response.type === "restart") {
-					console.log("restarting game")
-					this.getGame(this.game.gameId)
+					// tell the client to make a get request for the new game data.
+					this.getGame(this.game.gameId, false)
 				}
 			})
+		},
+
+		joinGame(gameId: string) {
+			this.websocket.close() // close previous
+			localStorage.setItem("gameId", JSON.stringify(gameId))
+			// this.leaveGame()
+			this.init()
+		},
+
+		cachedPlayer(): string | null {
+			let gameId
+			if (import.meta.client) {
+				const gameIdCache = localStorage.getItem("playerId")
+
+				if (gameIdCache) {
+					try {
+						gameId = JSON.parse(gameIdCache)
+					} catch (error) {
+						console.error(error)
+					}
+				}
+			}
+
+			return gameId
 		},
 
 		cachedGame(): string | null {
@@ -185,12 +230,15 @@ export const useGameStore = defineStore("game", {
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
 
-			this.getGame(this.game.gameId, false)
+			this.getGame(this.game.gameId, true)
+			this.resetBoardHighlights()
 		},
 
 		leaveGame() {
+			this.websocket.close()
 			localStorage.removeItem("gameId")
 			this.init()
+			this.resetBoardHighlights()
 		},
 
 		resetBoardHighlights() {
@@ -247,14 +295,17 @@ export const useGameStore = defineStore("game", {
 		},
 
 		/**Get a game instance from server and update local state. */
-		async getGame(gameId: string, newGame: boolean = false) {
+		async getGame(gameId: string, newGame: boolean) {
 			this.board.gamePieces.clear()
 			let gameInstance: TransmissionGameInstance | null = null
+
+			const playerId = this.cachedPlayer()
+			if (!playerId) throw new Error("player not found") // should be generated before function call
 
 			if (newGame) {
 				gameInstance = await $fetch<TransmissionGameInstance>("/api/create-game", {
 					method: "post",
-					body: { gameId: gameId },
+					body: { gameId, playerId },
 				})
 			} else {
 				gameInstance = await $fetch<TransmissionGameInstance | null>(`/api/${gameId}`, {
@@ -277,11 +328,6 @@ export const useGameStore = defineStore("game", {
 				playerTwo: gameInstance.playerTwo,
 				playBoth: true,
 			}
-
-			this.player = gameInstance.playerOne
-			// if (gameInstance.playerOne && gameInstance.playerTwo) {
-			// 	this.player = join ? gameInstance.playerTwo : gameInstance.playerOne
-			// }
 		},
 
 		resetBoardPiecesPieceId() {
@@ -313,7 +359,6 @@ export const useGameStore = defineStore("game", {
 
 		changeTurn(currentTurn: GamePieceColor) {
 			const nextTurnColor = getEnemyColor(currentTurn)
-			console.log("hereer")
 			this.board.turn = nextTurnColor
 		},
 
@@ -337,17 +382,10 @@ export const useGameStore = defineStore("game", {
 			this.updateLatestMove(fromPosition, toPosition)
 			this.changeTurn(this.board.turn)
 
-			const boardPiece = this.getBoardPiece(fromPosition)
 			const gamePiece = this.getGamePiece(fromPosition)
-
-			if (boardPiece) boardPiece.pieceId = null // reset previous hex piece id .
-
-			if (!selectedBoardPiece || !fromPosition) return
-
 			if (!gamePiece) throw new Error("Piece not found")
 
 			const side = positionContainsPiece(toPosition, this.board, gamePiece.color)
-
 			if (side === "enemy") {
 				this.kill(toPosition)
 				playSound("kill")
@@ -357,6 +395,8 @@ export const useGameStore = defineStore("game", {
 
 			gamePiece.boardPosition = toPosition
 
+			const boardPiece = this.getBoardPiece(fromPosition)
+			if (boardPiece) boardPiece.pieceId = null // reset previous hex piece id .
 			const newBoardPiece = this.getBoardPiece(toPosition)
 			if (newBoardPiece) {
 				newBoardPiece.pieceId = gamePiece.pieceId
@@ -365,15 +405,20 @@ export const useGameStore = defineStore("game", {
 			// send update to ws
 			const payload: UpdateMoveRequest = {
 				type: "move",
-				pieceStart: selectedBoardPiece.boardPosition,
+				pieceStart: fromPosition,
 				pieceEnd: toPosition,
+				pieceId: gamePiece.pieceId,
 				gameId: this.game.gameId,
 			}
+
+			console.log(payload)
+			// console.log(payload.pieceStart)
+			// console.log(payload.pieceEnd)
+
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
 
 			this.resetBoardHighlights()
-
 			this.checkCheck(toPosition)
 		},
 
@@ -381,12 +426,13 @@ export const useGameStore = defineStore("game", {
 			const pieceToKill = this.getGamePiece(position)
 			const boardPiece = this.getBoardPiece(position)
 
-			if (!pieceToKill || !pieceToKill.boardPosition || !boardPiece) {
+			if (!pieceToKill || !pieceToKill.boardPosition || !boardPiece || !boardPiece.pieceId) {
 				throw new Error("Error finding boardPiece or gamePiece")
 			}
 
 			let payload: KillRequest = {
 				type: "kill",
+				pieceId: boardPiece.pieceId,
 				piecePosition: pieceToKill.boardPosition,
 				gameId: this.game.gameId,
 			}

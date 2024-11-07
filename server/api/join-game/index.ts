@@ -10,8 +10,6 @@ export default eventHandler(async (event): Promise<TransmissionGameInstance | nu
 	const game = gameInstances.get(gameId) as GameInstance
 	const transmittableGameInstance = convertGameInstanceForClient(gameId)
 
-	console.log(transmittableGameInstance)
-
 	if (game) {
 		if (!game.playerTwo) {
 			game.playerTwo = player

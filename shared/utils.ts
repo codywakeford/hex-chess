@@ -24,8 +24,6 @@ export function getKingPiece(boardState: BoardState, color: GamePieceColor) {
 	const king = Array.from(boardState.gamePieces.values()).filter((piece) => {
 		return piece.color === color && piece.type === "king"
 	})
-	// console.log(king)
-
 	if (color === "black") {
 		return boardState.gamePieces.get("g10") as GamePiece
 	} else {

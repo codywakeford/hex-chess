@@ -3,7 +3,7 @@
 		<h1>Gliński's Chess</h1>
 
 		<h5>Game ID: {{ game.game.gameId }}</h5>
-		<pre>Player: {{ game.player.color }}</pre>
+		<pre>{{ player }}</pre>
 		<pre>Turn:{{ turn }}</pre>
 		<Board :height="boardHeight" />
 
@@ -11,7 +11,7 @@
 			<button @click="game.leaveGame">Leave Game</button>
 			<button @click="restart()">Restart Game</button>
 			<div class="join-game">
-				<button @click="game.getGame(gameId, false)">Join-Game</button>
+				<button @click="game.joinGame(gameId)">Join-Game</button>
 				<div class="join-game">
 					<input
 						placeholder="Enter a game ID to join."
@@ -55,11 +55,17 @@ function updateColor() {
 	game.selectedColors = selectedColors.value
 }
 
+const player = computed(() => {
+	return game.player
+})
+
 async function restart() {
 	await game.restartGame()
 }
 
 const boardHeight = computed(() => {
+	if (!import.meta.client) return 500
+
 	const windowWidth = window.innerWidth
 	const windowHeight = window.innerHeight
 

@@ -1,7 +1,7 @@
 export const colorWaves = {
 	// Traditional Chess Board Colors
-	classicBoard: ["#999999", "#666666", "#444444"],
-	grayBoard: ["#d18b47", "#e8ab6f", "#ffce9e"],
+	grayBoard: ["#999999", "#666666", "#444444"],
+	classicBoard: ["#d18b47", "#e8ab6f", "#ffce9e"],
 
 	// Popular Color Themes
 	woodlandBoard: ["#8b5a2b", "#a0522d", "#deb887"],

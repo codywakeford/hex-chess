@@ -162,7 +162,7 @@ export const startingPieces: GamePiece[] = [
 		color: "black",
 		alive: true,
 		boardPosition: { x: "c", y: 7 },
-		pieceId: "b7",
+		pieceId: "c7",
 	},
 
 	{

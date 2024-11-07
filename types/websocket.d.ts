@@ -10,7 +10,7 @@ declare global {
 		ws: any
 	}
 
-	type WebsocketMessageRequest = UpdateMoveRequest | JoinRequest | KillRequest
+	type WebsocketMessageRequest = UpdateMoveRequest | KillRequest | RestartRequest | LeaveRequest
 
 	interface UpdateMoveRequest {
 		type: "move"
@@ -19,13 +19,20 @@ declare global {
 
 		/**Where the piece is after moving. */
 		pieceEnd: BoardPosition
-
+		pieceId: string
 		gameId: string
 	}
 
 	interface KillRequest {
 		type: "kill"
+		pieceId: string
 		piecePosition: BoardPosition
+		gameId: string
+	}
+
+	interface LeaveRequest {
+		type: "leave"
+		playerNumber: number
 		gameId: string
 	}
 
@@ -34,11 +41,12 @@ declare global {
 		gameId: string
 	}
 
-	type WebsocketMessageResponse = WebsocketMessageRequest | JoinResponse
+	type WebsocketResponse = JoinResponse | KillRequest | UpdateMoveRequest | RestartRequest
 
 	/**The response when player two joins your game. */
 	interface JoinResponse {
 		type: "join"
-		playerTwo: Player
+		playerNumber: 1 | 2
+		player: Player | null
 	}
 }

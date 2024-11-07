@@ -14,21 +14,13 @@
  *
  */
 
-import { generateUniqueId } from "~/shared/utils"
 import { startingPieces } from "../hardData"
 import { initGameMap } from "../utils"
 
 export default eventHandler(async (event) => {
-	const { gameId } = await readBody(event)
+	const { gameId, playerId } = await readBody(event)
 
-	console.log(gameId)
-
-	if (!gameId) throw new Error("gameId not found.")
-
-	const player: Player = {
-		id: generateUniqueId(),
-		color: "black",
-	}
+	if (!gameId || !playerId) throw new Error("gameId | playerId not found.")
 
 	const boardState: TransmissionBoardState = {
 		gamePieces: structuredClone(startingPieces),
@@ -50,7 +42,7 @@ export default eventHandler(async (event) => {
 
 	const gameInstance: TransmissionGameInstance = {
 		id: gameId,
-		playerOne: player,
+		playerOne: null,
 		playerTwo: null,
 
 		boardState: boardState,

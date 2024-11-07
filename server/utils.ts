@@ -38,6 +38,8 @@ export function initGameMap(gameInstance: TransmissionGameInstance) {
 	const gamePiecesMap: Map<string, GamePiece> = new Map()
 	const boardPiecesMap: Map<string, BoardPiece> = new Map()
 
+	gamePiecesMap.clear()
+
 	gameInstance.boardState.gamePieces.forEach((piece) => {
 		if (!piece.boardPosition) return
 
