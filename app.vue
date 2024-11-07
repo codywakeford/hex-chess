@@ -8,7 +8,7 @@
 		<Board :height="boardHeight" />
 
 		<div class="control-panel">
-			<button @click="game.leaveGame">Leave Game</button>
+			<button @click="game.leaveGame(), game.init()">Leave Game</button>
 			<button @click="restart()">Restart Game</button>
 			<div class="join-game">
 				<button @click="game.joinGame(gameId)">Join-Game</button>
@@ -43,6 +43,17 @@
 			>
 		</p>
 	</main>
+	<Head>
+		<Title>Hex Chess</Title>
+		<Meta>
+			Play Hex Chess, a unique twist on classic chess with a hexagonal board! Challenge your
+			strategic skills, explore new moves, and enjoy exciting gameplay with friends or AI
+			opponents. Perfect for chess enthusiasts and newcomers alike!" This description is
+			clear, includes keywords like "hex chess" and "unique twist on classic chess," and
+			appeals to both chess lovers and new players. Let me know if you'd like adjustments for
+			a specific audience or style!
+		</Meta>
+	</Head>
 </template>
 
 <script lang="ts" setup>

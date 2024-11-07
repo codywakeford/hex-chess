@@ -64,7 +64,7 @@ const highlight = computed(() => {
 })
 
 const hexHeight = computed(() => {
-	return `${props.height}px`
+	return `${Math.ceil(props.height)}px`
 })
 
 const hexWidth = computed(() => {
@@ -72,7 +72,7 @@ const hexWidth = computed(() => {
 })
 
 const halfHeight = computed(() => {
-	return `${props.height / 1.73}px`
+	return `${Math.ceil(props.height / 1.73)}px`
 })
 
 const offsetTop = computed(() => {

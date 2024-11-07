@@ -32,7 +32,7 @@ declare global {
 
 	interface LeaveRequest {
 		type: "leave"
-		playerNumber: number
+		playerId: string
 		gameId: string
 	}
 

@@ -49,12 +49,9 @@ export default defineWebSocketHandler({
 			console.log("Joining as player number", playerNumber)
 		}
 
-		console.log(game.playerOne)
-		console.log(game.playerTwo)
-
 		const payload = {
 			type: "join",
-			player: player, // if null game is full
+			player: player, // if null : game is full
 		} as JoinResponse
 
 		peer.send(JSON.stringify(payload))
@@ -117,8 +114,30 @@ function moveGamePiece(request: UpdateMoveRequest) {
 	gamePiece.boardPosition = request.pieceEnd
 }
 
+/**Removes player from game state, if game empty : destroy mwuhahaha */
 function leaveGame(request: LeaveRequest) {
-	const game = gameInstances.get(request.gameId)
+	const game = gameInstances.get(request.gameId) as GameInstance
+
+	let player
+
+	if (!game.playerTwo) {
+		player = game.playerOne
+	}
+
+	// find and remove player
+	if (game.playerOne && game.playerOne.id === request.playerId) {
+		game.playerOne = null
+	} else if (game.playerTwo && game.playerTwo.id === request.playerId) {
+		game.playerTwo = null
+	} else {
+		console.error("player not found") // fail silently
+	}
+
+	// Delete game if empty
+	if (!game.playerOne && !game.playerTwo) {
+		console.log("Deleting game instance:", request.gameId)
+		gameInstances.delete(request.gameId)
+	}
 }
 
 function killGamePiece(request: KillRequest) {

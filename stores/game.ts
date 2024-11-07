@@ -55,12 +55,15 @@ export const useGameStore = defineStore("game", {
 
 		getGamePiece: (state) => (boardPosition: BoardPosition) => {
 			const boardPiece = state.board.boardPieces.get(stringPos(boardPosition))
+			if (!boardPiece) throw new Error("Board piece not found")
 
-			const pieceId = boardPiece?.pieceId
-
+			const pieceId = boardPiece.pieceId
 			if (!pieceId) return null
 
-			return state.board.gamePieces.get(pieceId) || null
+			const gamePiece = state.board.gamePieces.get(pieceId)
+			if (!gamePiece) return null
+
+			return gamePiece
 		},
 
 		getBoardPiece: (state) => (boardPosition: BoardPosition) => {
@@ -181,9 +184,8 @@ export const useGameStore = defineStore("game", {
 		},
 
 		joinGame(gameId: string) {
-			this.websocket.close() // close previous
+			this.leaveGame()
 			localStorage.setItem("gameId", JSON.stringify(gameId))
-			// this.leaveGame()
 			this.init()
 		},
 
@@ -235,9 +237,18 @@ export const useGameStore = defineStore("game", {
 		},
 
 		leaveGame() {
-			this.websocket.close()
+			// tell the server
+			const payload = {
+				gameId: this.game.gameId,
+				type: "leave",
+				playerId: this.player.id,
+			} as LeaveRequest
+
+			this.websocket.send(JSON.stringify(payload))
 			localStorage.removeItem("gameId")
-			this.init()
+
+			this.websocket.close()
+
 			this.resetBoardHighlights()
 		},
 

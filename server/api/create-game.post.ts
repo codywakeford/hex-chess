@@ -1,19 +1,3 @@
-/**
- * This is going to give the player an id and send it to them for tracking
- *
- *
- * It will create a game instance in server memory
- * This instance will hold all of the piece states
- * it will hold the ids of both players
- * number of players in game
- * other data ...
- *
- *
- * it will add a random 'join string' to an array in the memory
- * this will allow others to reference the game
- *
- */
-
 import { startingPieces } from "../hardData"
 import { initGameMap } from "../utils"
 
