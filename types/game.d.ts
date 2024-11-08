@@ -49,7 +49,7 @@ declare global {
 
 	interface selectedBoardPiece {
 		boardPosition: BoardPosition
-		highlight: "selected" | "attack" | "move" | null
+		highlights: BoardPieceHighlights
 	}
 
 	interface GameState {
@@ -79,10 +79,13 @@ declare global {
 		}
 	}
 
+	type BoardPieceHighlight = "move" | "attack" | "selected" | "previous"
+	type BoardPieceHighlights = Set<BoardPieceHighlight>
+
 	interface BoardPiece {
 		boardPosition: BoardPosition
 
-		highlight: null | "move" | "attack" | "selected"
+		highlights: BoardPieceHighlights
 
 		/**Position in px */
 		position: number[]

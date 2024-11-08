@@ -2,9 +2,10 @@
 	<div
 		class="hexagon"
 		:class="{
-			selected: highlight === 'selected',
-			highlightMove: highlight === 'move',
-			attack: highlight === 'attack',
+			selected: highlights.has('selected'),
+			highlightMove: highlights.has('move'),
+			attack: highlights.has('attack'),
+			previousMove: highlights.has('previous'),
 		}"
 		:style="{ left: `${hex?.position[0]}px`, bottom: `${hex?.position[1]}px` }"
 	>
@@ -51,7 +52,7 @@ const hex = computed(() => {
 })
 
 async function handleHexClick(hex: BoardPiece) {
-	if (hex.highlight === "move" || hex.highlight === "attack") {
+	if (hex.highlights.has("move") || hex.highlights.has("attack")) {
 		const fromPosition = game.getSelectedBoardPosition
 		if (!fromPosition) throw new Error("No positoin found")
 
@@ -62,8 +63,8 @@ async function handleHexClick(hex: BoardPiece) {
 	selectBoardPiece(hex)
 }
 
-const highlight = computed(() => {
-	return hex.value?.highlight || null
+const highlights = computed(() => {
+	return hex.value?.highlights || []
 })
 
 const hexHeight = computed(() => {
@@ -83,7 +84,7 @@ const offsetTop = computed(() => {
 })
 
 const offsetLeft = computed(() => {
-	return `${props.height / 4.1}px`
+	return `${props.height / 4.5}px`
 })
 
 const color = computed(() => {
@@ -128,6 +129,7 @@ const props = defineProps<Props>()
         z-index: 100
         margin-top: 5px
         font-size: 0.9rem
+
     .hex-piece
         position: absolute
         background: v-bind(color)

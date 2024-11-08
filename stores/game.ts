@@ -271,14 +271,25 @@ export const useGameStore = defineStore("game", {
 		},
 
 		resetBoardHighlights() {
-			this.board.boardPieces.forEach((hex) => (hex.highlight = null))
-		},
+			for (let [, boardPiece] of this.getBoardPieces) {
+				if (boardPiece.highlights.has("previous")) {
+					boardPiece.highlights.clear()
+					boardPiece.highlights.add("previous")
+					return
+				}
 
+				boardPiece.highlights.clear()
+			}
+		},
 		selectBoardPiece(boardPiece: BoardPiece) {
 			this.resetBoardHighlights()
 
+			if (!positionContainsPiece(boardPiece.boardPosition, this.board, this.player.color)) {
+				return
+			}
+
 			this.board.selectedBoardPiece = boardPiece
-			this.board.selectedBoardPiece.highlight = "selected"
+			this.board.selectedBoardPiece.highlights.add("selected")
 
 			this.displayPieceMoves(boardPiece.boardPosition)
 		},
@@ -290,6 +301,8 @@ export const useGameStore = defineStore("game", {
 				this.board.selectedBoardPiece = null
 				return
 			}
+
+			if (!positionContainsPiece(boardPosition, this.board, this.player.color)) return
 
 			if (piece.color !== this.player.color) {
 				this.board.selectedBoardPiece = null
@@ -304,17 +317,17 @@ export const useGameStore = defineStore("game", {
 				const hex = this.getBoardPiece(boardPosition)
 
 				if (hex) {
-					hex.highlight = "move"
-
 					const side = positionContainsPiece(boardPosition, this.board, piece.color)
 
 					if (side === "enemy") {
-						hex.highlight = "attack"
+						hex.highlights.add("attack")
 					}
 
 					if (side === "ally") {
-						hex.highlight = null
+						hex.highlights.clear() // bug
 					}
+
+					hex.highlights.add("move")
 				}
 			})
 		},
@@ -396,6 +409,15 @@ export const useGameStore = defineStore("game", {
 		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition, gamePiece: GamePiece) {
 			this.board.latestMoves[gamePiece.color].from = fromPos
 			this.board.latestMoves[gamePiece.color].to = toPos
+
+			// set board highlights
+			const startBoardPiece = this.getBoardPiece(fromPos)
+			const endBoardPiece = this.getBoardPiece(toPos)
+
+			if (!startBoardPiece || !endBoardPiece) throw new Error()
+
+			startBoardPiece.highlights.has("previous")
+			endBoardPiece.highlights.has("previous")
 		},
 
 		movePiece(toPosition: BoardPosition, gamePiece: GamePiece, fromPosition: BoardPosition) {
@@ -508,23 +530,30 @@ export const useGameStore = defineStore("game", {
 
 		cpuMove() {
 			if (this.board.opponent !== "cpu") return
-			if (!this.game.playerTwo) throw new Error("No player two found.")
+			setTimeout(() => {
+				if (!this.game.playerTwo) throw new Error("No player two found.")
 
-			console.log("cpu movibng")
+				console.log("cpu movibng")
 
-			let cpuPlayer = this.game.playerTwo
+				let cpuPlayer = this.game.playerTwo
 
-			const cpuMove = getCpuMove(this.board, cpuPlayer)
+				const cpuMove = getCpuMove(this.board, cpuPlayer)
 
-			if (!cpuMove || !cpuMove.piece || !cpuMove.piece.boardPosition || !cpuMove.fromPosition)
-				throw new Error("No move defined")
+				if (
+					!cpuMove ||
+					!cpuMove.piece ||
+					!cpuMove.piece.boardPosition ||
+					!cpuMove.fromPosition
+				)
+					throw new Error("No move defined")
 
-			const startBoardPiece = this.getBoardPiece(cpuMove.piece.boardPosition)
-			if (!startBoardPiece) throw new Error("NO board piece found")
+				const startBoardPiece = this.getBoardPiece(cpuMove.piece.boardPosition)
+				if (!startBoardPiece) throw new Error("NO board piece found")
 
-			this.board.selectedBoardPiece = startBoardPiece
+				this.board.selectedBoardPiece = startBoardPiece
 
-			this.movePiece(cpuMove.toPosition, cpuMove.piece, cpuMove.fromPosition)
+				this.movePiece(cpuMove.toPosition, cpuMove.piece, cpuMove.fromPosition)
+			}, 250)
 		},
 	},
 })

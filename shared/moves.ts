@@ -244,8 +244,8 @@ export function getStraightPaths(
 		let isOutOfBounds = false
 
 		while (!isOutOfBounds) {
-			boardPieces.add(cursorPos)
 			cursorPos = _function(cursorPos)
+			boardPieces.add(cursorPos)
 			if (outOfBounds(cursorPos, boardState)) return
 
 			const side = positionContainsPiece(cursorPos, boardState, color)
@@ -286,8 +286,8 @@ export function getDiagonalPaths(
 		let isOutOfBounds = false
 
 		while (!isOutOfBounds) {
-			diagonalHexagons.add(cursorPos)
 			cursorPos = _function(cursorPos)
+			diagonalHexagons.add(cursorPos)
 			if (outOfBounds(cursorPos, boardState)) break
 			if (positionContainsPiece(cursorPos, boardState, color) === "ally") break
 

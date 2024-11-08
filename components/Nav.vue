@@ -1,14 +1,18 @@
 <template>
 	<nav>
-		<h3 class="left">GameID:{{ gameId }}</h3>
-		<div class="center">
+		<div class="logo-box">
+			<img
+				src="/logo.png"
+				alt="Game logo"
+			/>
 			<h1>Gliński's Chess</h1>
 		</div>
+
 		<div class="right">
 			<button @click="game.leaveGame(), game.init()">Leave Game</button>
 			<button @click="restart()">Restart Game</button>
 			<div class="join-game">
-				<button @click="game.joinGame(gameId), (gameIdInput = '')">Join-Game</button>
+				<button @click="game.joinGame(gameIdInput), (gameIdInput = '')">Join-Game</button>
 				<div class="join-game">
 					<input
 						placeholder="Enter a game ID to join."
@@ -36,7 +40,10 @@ const gameId = computed(() => {
 </script>
 
 <style lang="sass" scoped>
+$offwhite: rgb(205, 205, 205)
+
 nav
+    padding: 10px 15px
     margin-inline: auto
     max-width: 1400px
     width: 100%
@@ -44,9 +51,8 @@ nav
     align-items: center
     justify-content: space-between
     gap: 25px
-    height: 75px
     position: relative
-    margin-bottom: 50px
+    margin-bottom: 25px
     z-index: 1000
 
     .center
@@ -57,9 +63,48 @@ nav
 
         h1
             font-size: 2.5rem
+
+button
+    background: transparent
+    box-shadow: none
+    border: none
+    font-size: 1rem
+    color: $offwhite
+    cursor: pointer
+    padding: 3px 10px
+    border-radius: 5px
+    transition: background 0.3s
+
+    &:hover
+        background: rgba(255, 255, 255, 0.06)
+
+.logo-box
+    display: flex
+    gap: 15px
+    align-items: center
+
+    img
+        width: 55px
+
+    h1
+        font-weight: 200
+        font-size: 2rem
+        margin: 0
+        opacity: 0.8
+
+input
+    outline: none
+    border: 1px solid $offwhite
+    border-radius: 25px
+    padding: 5px 15px
+    margin-left: 10px
+    color: $offwhite
+    background: transparent
+
 .right
     display: flex
-    gap: 5px
+    gap: 15px
+
 .join-game
     display: flex
     gap: 5px

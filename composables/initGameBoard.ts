@@ -1,6 +1,5 @@
 const letters = "abcdefghijkl"
 
-
 // Create the hexagonal board // // https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cleanpng.com%2Fpng-hexagonal-chess-l-ancien-secret-de-la-fleur-de-vie-1933863%2F10.html&psig=AOvVaw2bmisPHcUYqEs7lNPYBjRF&ust=1730242812490000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCkkfOWsokDFQAAAAAdAAAAABB-
 
 export function initGameBoard(hexHeight: number) {
@@ -56,8 +55,8 @@ export function initGameBoard(hexHeight: number) {
 				},
 				position: hexPos,
 				colorIndex: 0,
-				highlight: null,
-				pieceId: null
+				highlights: new Set(),
+				pieceId: null,
 			}
 
 			// set hex color
@@ -71,7 +70,7 @@ export function initGameBoard(hexHeight: number) {
 			} else {
 				boardHex.colorIndex = 2
 			}
-	
+
 			game.addBoardPiece(boardHex)
 		}
 	}

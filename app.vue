@@ -3,19 +3,6 @@
 		<Nav />
 		<Board :height="boardHeight" />
 
-		<!-- <select
-			name="colorWave"
-			id="colorWave"
-			@input="updateColor()"
-			v-model="selectedColors"
-		>
-			<option
-				v-for="(value, name) in colorWaves"
-				:value="value"
-			>
-				{{ name }}
-			</option>
-		</select> -->
 		<p class="source-code">
 			This is an open source project. Find the source code
 			<nuxt-link
@@ -27,7 +14,7 @@
 	</main>
 
 	<Head>
-		<Title>Hex Chess</Title>
+		<Title>Gliński's Chess</Title>
 		<Meta>
 			Play Hex Chess Online, a unique twist on classic chess with a hexagonal board! Challenge
 			your strategic skills, explore new moves, and enjoy exciting gameplay with friends or AI
@@ -40,30 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-// import { colorWaves } from "./composables/colorWaves"
-
 const game = useGameStore()
-const selectedColors = ref([])
-
-const lastTurn = computed(() => {
-	return game.board.latestMoves
-})
-
-function updateColor() {
-	game.selectedColors = selectedColors.value
-}
-
-const playerColor = computed(() => {
-	return game.player.color
-})
-
-const gameObj = computed(() => {
-	return game.game
-})
-
-async function restart() {
-	await game.restartGame()
-}
 
 const boardHeight = computed(() => {
 	if (!import.meta.client) return 500
@@ -84,7 +48,7 @@ onMounted(() => {
 
 <style lang="sass">
 html
-	background: #333
+	background: #161512
 	color: white
 	// height: 100vh
 
