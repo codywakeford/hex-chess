@@ -120,7 +120,7 @@ function moveGamePiece(request: UpdateMoveRequest) {
 	gamePiece.boardPosition = request.pieceEnd
 }
 
-/**Removes player from game state, if game empty : destroy mwuhahaha */
+/**Removes player from game state, :  destroy if empty */
 function leaveGame(request: LeaveRequest) {
 	const game = gameInstances.get(request.gameId) as GameInstance
 
@@ -135,8 +135,6 @@ function leaveGame(request: LeaveRequest) {
 		game.playerOne = null
 	} else if (game.playerTwo && game.playerTwo.id === request.playerId) {
 		game.playerTwo = null
-	} else {
-		console.error("player not found") // fail silently
 	}
 
 	// Delete game if empty

@@ -148,7 +148,8 @@ export const useGameStore = defineStore("game", {
 				const response = JSON.parse(newValue) as WebsocketResponse
 
 				if (response.type === "kill") {
-					this.kill(response.piecePosition)
+					console.log("ws says kill server")
+					this.kill(response.piecePosition, false)
 				}
 
 				if (response.type === "move") {
@@ -156,7 +157,6 @@ export const useGameStore = defineStore("game", {
 				}
 
 				if (response.type === "join") {
-					console.log(response)
 					if (response.playerNumber === 0) return // game is full
 
 					// this.player.color = response.player.color
@@ -384,20 +384,11 @@ export const useGameStore = defineStore("game", {
 		movePiece(toPosition: BoardPosition, gamePiece: GamePiece, fromPosition: BoardPosition) {
 			if (!this.isPlayersTurn && !this.isCpuTurn) return
 
-			if (!toPosition) {
-				throw new Error("toPosition undefined")
-			}
-
-			// const gamePiece = this.getSelectedGamePiece
-
-			console.log("Retrieved game piece:", gamePiece)
-			if (!gamePiece || !gamePiece.pieceId) {
-				console.log(gamePiece)
-			}
+			if (!toPosition) throw new Error("toPosition undefined")
 
 			const side = positionContainsPiece(toPosition, this.board, gamePiece.color)
 			if (side === "enemy") {
-				this.kill(toPosition)
+				this.kill(toPosition, true)
 				playSound("kill")
 			} else {
 				playSound("move")
@@ -443,7 +434,8 @@ export const useGameStore = defineStore("game", {
 			this.changeTurn(this.board.turn)
 		},
 
-		kill(position: BoardPosition) {
+		kill(position: BoardPosition, notifyServer: boolean) {
+			console.log("killing game piece")
 			const pieceToKill = this.getGamePiece(position)
 			const boardPiece = this.getBoardPiece(position)
 
@@ -461,6 +453,8 @@ export const useGameStore = defineStore("game", {
 			boardPiece.pieceId = null
 			pieceToKill.alive = false
 			pieceToKill.boardPosition = null
+
+			if (!notifyServer) return
 
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
