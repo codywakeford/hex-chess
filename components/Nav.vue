@@ -5,7 +5,7 @@
 				src="/logo.png"
 				alt="Game logo"
 			/>
-			<h1>Gliński's Chess</h1>
+			<h1 @click="toggleGameType()">{{ logoTitle }} Chess</h1>
 		</div>
 
 		<div class="right">
@@ -37,6 +37,26 @@ const playerColor = computed(() => {
 const gameId = computed(() => {
 	return game.game.gameId
 })
+
+function toggleGameType() {
+	const index = gameTypes.indexOf(game.gameType)
+
+	if (index === gameTypes.length - 1) {
+		game.gameType = gameTypes[0]
+	} else {
+		// Otherwise, move to the next game type
+		game.gameType = gameTypes[index + 1]
+	}
+}
+
+const logoTitle = computed(() => {
+	if (game.gameType === "glinsky") return "Gliński's"
+	if (game.gameType === "mcCooey") return "McCooey's"
+})
+const gameType = computed(() => {
+	return game.gameType
+})
+const gameTypes: GameType[] = ["glinsky", "mcCooey"]
 </script>
 
 <style lang="sass" scoped>
@@ -52,7 +72,7 @@ nav
     justify-content: space-between
     gap: 25px
     position: relative
-    margin-bottom: 25px
+    margin-bottom: 50px
     z-index: 1000
 
     .center
@@ -91,6 +111,7 @@ button
         font-size: 2rem
         margin: 0
         opacity: 0.8
+        cursor: pointer
 
 input
     outline: none

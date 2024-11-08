@@ -2,6 +2,7 @@ export function getPieceByPosition(boardState: BoardState, boardPosition: BoardP
 	return boardState.gamePieces.get(stringPos(boardPosition))
 }
 
+/**A strigified version of the BoardPosition type is used for map id's */
 export function stringPos(boardPosition: BoardPosition) {
 	return `${boardPosition.x}${boardPosition.y}`
 }
@@ -19,11 +20,6 @@ export function objPos(string: string) {
 }
 
 export function getKingPiece(boardState: BoardState, color: GamePieceColor) {
-	// pieces are id by their start positions, so use that to find efficently
-
-	const king = Array.from(boardState.gamePieces.values()).filter((piece) => {
-		return piece.color === color && piece.type === "king"
-	})
 	if (color === "black") {
 		return boardState.gamePieces.get("g10") as GamePiece
 	} else {

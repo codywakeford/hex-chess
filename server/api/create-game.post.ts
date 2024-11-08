@@ -1,11 +1,18 @@
-import { startingPieces } from "../hardData"
+import { glinskyStartingPositions, mcCooeyStartingPositions } from "../hardData"
 import { initGameMap } from "../utils"
 
 export default eventHandler(async (event) => {
-	const { gameId, playerId, opponent } = await readBody(event)
+	const { gameId, playerId, opponent, gameType } = await readBody(event)
 
-	if (!gameId || !playerId || !opponent)
-		throw new Error("gameId | playerId | opponent not found.")
+	if (!gameId || !playerId || !opponent || !gameType)
+		throw new Error("gameId | playerId | opponent | gameType not found.")
+
+	let startingPieces: GamePiece[]
+	if (gameType === "mcCooey") {
+		startingPieces = mcCooeyStartingPositions
+	} else {
+		startingPieces = glinskyStartingPositions
+	}
 
 	// Default board state.
 	const boardState: TransmissionBoardState = {
@@ -44,6 +51,7 @@ export default eventHandler(async (event) => {
 
 	console.log("")
 	console.log("creating Game...")
+	console.log(gameType)
 
 	const gameInstance: TransmissionGameInstance = {
 		id: gameId,

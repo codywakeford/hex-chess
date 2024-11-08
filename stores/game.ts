@@ -20,6 +20,8 @@ export const useGameStore = defineStore("game", {
 			color: "white",
 		} as Player,
 
+		gameType: "mcCooey" as GameType,
+
 		board: {
 			opponent: "cpu" as OpponentType,
 			cpuLevel: 1 as number,
@@ -347,7 +349,12 @@ export const useGameStore = defineStore("game", {
 			if (newGame) {
 				gameInstance = await $fetch<TransmissionGameInstance>("/api/create-game", {
 					method: "post",
-					body: { gameId, playerId, opponent: this.board.opponent },
+					body: {
+						gameId,
+						playerId,
+						opponent: this.board.opponent,
+						gameType: this.gameType,
+					},
 				})
 			} else {
 				gameInstance = await $fetch<TransmissionGameInstance | null>(`/api/${gameId}`, {

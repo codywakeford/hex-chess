@@ -1,5 +1,5 @@
 import { gameInstances } from "./cache"
-import { startingPieces } from "./hardData"
+import { glinskyStartingPositions, mcCooeyStartingPositions } from "./hardData"
 
 /**Converts maps to arrays */
 export function convertGameInstanceForClient(gameId: string): TransmissionGameInstance | null {
@@ -19,18 +19,27 @@ export function convertGameInstanceForClient(gameId: string): TransmissionGameIn
 	return clientGameInstance
 }
 
-export function setPiecesToStartPositions(gameId: string) {
+export function setPiecesToStartPositions(gameId: string, gameType: GameType) {
 	const game = gameInstances.get(gameId)
 	if (!game) throw new Error("No game found.")
 
 	const gamePieces = game.boardState.gamePieces
 	gamePieces.clear()
 
+	let startingPieces = getStartingPieces(gameType)
+
 	startingPieces.forEach((piece) => {
 		if (!piece.boardPosition) throw new Error("No piece poisition found.")
 
 		gamePieces.set(stringPos(piece.boardPosition), piece)
 	})
+}
+
+export function getStartingPieces(gameType: GameType) {
+	if (gameType === "glinsky") return glinskyStartingPositions
+	if (gameType === "mcCooey") return glinskyStartingPositions
+
+	return []
 }
 
 /**Sets up the game data and adds it to server memory. */

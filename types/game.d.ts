@@ -52,6 +52,8 @@ declare global {
 		highlights: BoardPieceHighlights
 	}
 
+	type GameType = "glinsky" | "mcCooey"
+
 	interface GameState {
 		gameId: string
 		playerOne: Player | null

@@ -1,4 +1,4 @@
-export const startingPieces: GamePiece[] = [
+export const glinskyStartingPositions: GamePiece[] = [
 	/**white */
 	//Pawns
 	{
@@ -294,5 +294,269 @@ export const startingPieces: GamePiece[] = [
 		alive: true,
 		boardPosition: { x: "i", y: 8 },
 		pieceId: "i8",
+	},
+]
+
+export const mcCooeyStartingPositions: GamePiece[] = [
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "c", y: 1 },
+		pieceId: "c1",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "d", y: 2 },
+		pieceId: "d2",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "e", y: 3 },
+		pieceId: "e3",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "f", y: 4 },
+		pieceId: "f4",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "g", y: 3 },
+		pieceId: "g3",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "h", y: 2 },
+		pieceId: "h2",
+	},
+
+	{
+		type: "pawn",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "i", y: 1 },
+		pieceId: "i1",
+	},
+
+	// Bishops
+	{
+		type: "bishop",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "f", y: 1 },
+		pieceId: "f1",
+	},
+	{
+		type: "bishop",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "f", y: 2 },
+		pieceId: "f2",
+	},
+	{
+		type: "bishop",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "f", y: 3 },
+		pieceId: "f3",
+	},
+
+	// King
+	{
+		type: "king",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "g", y: 1 },
+		pieceId: "g1",
+	},
+
+	// Queen
+	{
+		type: "queen",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "e", y: 1 },
+		pieceId: "e1",
+	},
+
+	// Horse
+	{
+		type: "horse",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "e", y: 2 },
+		pieceId: "e2",
+	},
+
+	{
+		type: "horse",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "g", y: 2 },
+		pieceId: "g2",
+	},
+
+	// Castle
+	{
+		type: "castle",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "d", y: 1 },
+		pieceId: "d1",
+	},
+
+	{
+		type: "castle",
+		color: "white",
+		alive: true,
+		boardPosition: { x: "h", y: 1 },
+		pieceId: "h1",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "c", y: 8 },
+		pieceId: "c8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "d", y: 8 },
+		pieceId: "d8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "e", y: 8 },
+		pieceId: "e8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "f", y: 8 },
+		pieceId: "f8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "g", y: 8 },
+		pieceId: "g8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "h", y: 8 },
+		pieceId: "h8",
+	},
+
+	{
+		type: "pawn",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "i", y: 8 },
+		pieceId: "i8",
+	},
+
+	// Bishops
+	{
+		type: "bishop",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "f", y: 11 },
+		pieceId: "f11",
+	},
+	{
+		type: "bishop",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "f", y: 10 },
+		pieceId: "f10",
+	},
+	{
+		type: "bishop",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "f", y: 9 },
+		pieceId: "f9",
+	},
+
+	// King
+	{
+		type: "king",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "g", y: 10 },
+		pieceId: "g10",
+	},
+
+	// Queen
+	{
+		type: "queen",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "e", y: 10 },
+		pieceId: "e10",
+	},
+
+	// Horse
+	{
+		type: "horse",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "e", y: 9 },
+		pieceId: "e9",
+	},
+
+	{
+		type: "horse",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "g", y: 9 },
+		pieceId: "g9",
+	},
+
+	// Castle
+	{
+		type: "castle",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "d", y: 9 },
+		pieceId: "d9",
+	},
+
+	{
+		type: "castle",
+		color: "black",
+		alive: true,
+		boardPosition: { x: "h", y: 9 },
+		pieceId: "h9",
 	},
 ]

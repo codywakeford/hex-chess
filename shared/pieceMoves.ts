@@ -99,11 +99,15 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 		pawnMoves.push(boardPosition)
 	}
 
+	const boardPiece = boardState.boardPieces.get(stringPos(position))
+	if (!boardPiece || !boardPiece.pieceId) throw new Error()
+
+	const gamePiece = boardState.gamePieces.get(boardPiece.pieceId)
+	if (!gamePiece || !gamePiece.boardPosition) throw new Error()
+
 	// if white move down // if on start pos move twice
 	if (color === "white") {
-		const canMoveTwice = pawnDoublePositions.black.some((boardPosition) => {
-			return boardPosition.x === position.x && boardPosition.y === position.y
-		})
+		const canMoveTwice = gamePiece.pieceId === stringPos(gamePiece.boardPosition)
 
 		let positionUp = iterateUp(position)
 		if (!outOfBounds(positionUp, boardState)) {
@@ -124,9 +128,7 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 
 	// if black move up // if on start pos move twice
 	if (color === "black") {
-		const canMoveTwice = pawnDoublePositions.white.some((boardPosition) => {
-			return boardPosition.x === position.x && boardPosition.y === position.y
-		})
+		const canMoveTwice = gamePiece.pieceId === stringPos(gamePiece.boardPosition)
 
 		let positionDown = iterateDown(position)
 		if (!outOfBounds(positionDown, boardState)) {
