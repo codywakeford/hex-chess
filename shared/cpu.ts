@@ -7,19 +7,25 @@ export function getCpuMove(boardState: BoardState, cpu: Player) {
 	const cpuLevel = boardState.cpuLevel
 	const potentialMoves = getAllPlayerPathsWithPieces(boardState, cpu.color)
 
+	// level 1 : return random piece
 	if (cpuLevel === 1) {
-		// Step 1: Get a random key (piece) from the map
 		const pieces = Array.from(potentialMoves.keys()) // Convert map keys to an array
-		const randomPiece = pieces[Math.floor(Math.random() * pieces.length)]
+		let randomPieceId: string | undefined
+		let moves: BoardPosition[] | undefined
 
-		// Step 2: Get a random move from that piece's array of moves
-		const moves = potentialMoves.get(randomPiece)
-		if (!moves) throw new Error("no moves")
+		// Keep selecting a random piece until we find one with valid moves
+		do {
+			randomPieceId = pieces[Math.floor(Math.random() * pieces.length)]
+			moves = potentialMoves.get(randomPieceId)
+		} while (!moves || moves.length === 0)
+
 		const randomMove = moves[Math.floor(Math.random() * moves.length)]
+		const piece = boardState.gamePieces.get(randomPieceId)
 
-		return { piece: randomPiece, move: randomMove }
+		if (!piece) throw new Error("Game piece not found")
+
+		return { piece: piece, fromPosition: piece.boardPosition, toPosition: randomMove }
 	}
-
 	// iterate over each move,
 	// work out score
 	// save scores

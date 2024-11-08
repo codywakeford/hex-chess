@@ -288,16 +288,12 @@ export function getDiagonalPaths(
 		while (!isOutOfBounds) {
 			diagonalHexagons.add(cursorPos)
 			cursorPos = _function(cursorPos)
-			if (outOfBounds(cursorPos, boardState)) return
+			if (outOfBounds(cursorPos, boardState)) break
+			if (positionContainsPiece(cursorPos, boardState, color) === "ally") break
 
-			const side = positionContainsPiece(cursorPos, boardState, color)
+			diagonalHexagons.add(cursorPos) // add to moves if : board piece is empty or if board ppiece has enemy.
 
-			if (side === "enemy") {
-				diagonalHexagons.add(cursorPos)
-				break
-			} else if (side === "ally") {
-				break
-			}
+			if (positionContainsPiece(cursorPos, boardState, color) === "enemy") break
 		}
 	})
 

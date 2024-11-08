@@ -7,6 +7,7 @@ export default eventHandler(async (event) => {
 	if (!gameId || !playerId || !opponent)
 		throw new Error("gameId | playerId | opponent not found.")
 
+	// Default board state.
 	const boardState: TransmissionBoardState = {
 		gamePieces: structuredClone(startingPieces),
 		selectedBoardPiece: null,
@@ -27,22 +28,32 @@ export default eventHandler(async (event) => {
 		turn: "white" as GamePieceColor,
 	}
 
+	let playerOne: Player | null = null
 	let playerTwo: Player | null = null
 
-	if (opponent === "cpu") {
-		playerTwo = {
-			id: "cpu",
-			color: "black",
-		}
+	playerOne = {
+		id: playerId,
+		color: "white",
 	}
+
+	// always create a new game with a cpu player
+	playerTwo = {
+		id: "cpu",
+		color: "black",
+	}
+
+	console.log("")
+	console.log("creating Game...")
 
 	const gameInstance: TransmissionGameInstance = {
 		id: gameId,
-		playerOne: null,
-		playerTwo: playerTwo,
+		playerOne,
+		playerTwo,
 
 		boardState: boardState,
 	}
+	console.log(gameInstance.playerOne)
+	console.log(gameInstance.playerTwo)
 
 	initGameMap(gameInstance) // add instance to server cache
 

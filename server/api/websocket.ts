@@ -12,79 +12,85 @@ export default defineWebSocketHandler({
 		const gameId = urlObj.searchParams.get("gameId")
 		const playerId = urlObj.searchParams.get("playerId")
 
-		if (!gameId) return
-		if (!playerId) throw new Error("player id not found")
+		if (!gameId) throw new Error("gameId not found")
+		if (!playerId) throw new Error("playerId not found")
 
-		console.log("")
-		console.log("PlayerJoining:", playerId)
-		console.log("Joining Game", gameId)
+		// console.log("")
+		// console.log("PlayerJoining:", playerId)
+		// console.log("Joining Game", gameId)
 
 		const game = gameInstances.get(gameId) as GameInstance
 		if (!game) return
 
-		let player: Player | null = null
+		let playerOne: Player | null = game.playerOne
+		let playerTwo: Player | null = game.playerTwo
+
+		/**The number the requesting player is. Return 0 if game is full. */
 		let playerNumber = 0
 
+		// If playerId  is already in game : rejoin
 		if (game.playerOne && game.playerOne.id === playerId) {
-			// Player is rejoining as player 1
-			player = game.playerOne
 			playerNumber = 1
-			console.log("Rejoining as player number", playerNumber)
-		} else if (game.playerTwo && game.playerTwo.id === playerId) {
-			// Player is rejoining as player 2
-			player = game.playerTwo
-			playerNumber = 2
-			console.log("Rejoining as player number", playerNumber)
-		} else if (!game.playerOne) {
-			// New player joining as player 1
-			player = { id: playerId, color: "white" }
-			game.playerOne = player
-			playerNumber = 1
-			console.log("Joining as player number", playerNumber)
-		} else if (!game.playerTwo) {
-			// New player joining as player 2
-			player = { id: playerId, color: "black" }
-			game.playerTwo = player
-			playerNumber = 2
-			console.log("Joining as player number", playerNumber)
 		}
 
+		// If playerId is already player2 : rejoin
+		else if (game.playerTwo && game.playerTwo.id === playerId) {
+			playerNumber = 2
+		}
+
+		// If player 1 slot is empty : Join as player one
+		else if (!game.playerOne) {
+			playerOne = { id: playerId, color: "white" }
+			game.playerOne = playerOne
+			playerNumber = 1
+		}
+
+		// If player 2 slot is empty or is CPU player : Join as player 2
+		else if (!game.playerTwo || game.playerTwo.id === "cpu") {
+			playerTwo = { id: playerId, color: "black" }
+			game.playerTwo = playerTwo
+			playerNumber = 2
+		}
+
+		// response for the person joining
 		const payload = {
 			type: "join",
-			player: player, // if null : game is full
+			playerNumber, // 0 if game is full
+			playerOne: playerOne,
+			playerTwo: playerTwo,
 		} as JoinResponse
 
-		peer.send(JSON.stringify(payload))
-		peer.subscribe(gameId)
-		// peer.publish(gameId, JSON.stringify(payload))
+		// response for the others in the game.
+		const payload2 = {
+			type: "joinNotification",
+			playerOne,
+			playerTwo,
+		} as JoinNotification
+
+		peer.send(JSON.stringify(payload)) // response
+		peer.publish(gameId, JSON.stringify(payload2)) // update subscribers
+		peer.subscribe(gameId) // subscribe to events
 	},
 
+	// TODO: verify move server side.
 	message(peer, message) {
-		// TODO: verify move
 		const request = message.json() as WebsocketMessageRequest
 
 		// Share message with subscribers
-		const payload = message.toString()
-		peer.publish(request.gameId, payload)
+		peer.publish(request.gameId, message.toString())
 
-		if (request.type === "restart") {
-			restartGame(request)
-		}
-
-		if (request.type === "move") {
-			moveGamePiece(request)
-		}
-
-		if (request.type === "kill") {
-			killGamePiece(request)
-		}
-
-		if (request.type === "leave") {
-			leaveGame(request)
-		}
+		if (request.type === "restart") restartGame(request)
+		if (request.type === "move") moveGamePiece(request)
+		if (request.type === "kill") killGamePiece(request)
+		if (request.type === "leave") leaveGame(request)
 	},
 
-	close(peer) {},
+	close(peer) {
+		peer.close()
+
+		//Todo update other subs to leaving
+	},
+
 	error(peer, error) {
 		console.log("error on WS", peer, error)
 	},

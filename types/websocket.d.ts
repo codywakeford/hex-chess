@@ -41,12 +41,25 @@ declare global {
 		gameId: string
 	}
 
-	type WebsocketResponse = JoinResponse | KillRequest | UpdateMoveRequest | RestartRequest
+	type WebsocketResponse =
+		| JoinResponse
+		| KillRequest
+		| UpdateMoveRequest
+		| RestartRequest
+		| JoinNotification
+
+	interface JoinNotification {
+		type: "joinNotification"
+		playerOne: Player
+		playerTwo: Player
+	}
 
 	/**The response when player two joins your game. */
 	interface JoinResponse {
 		type: "join"
-		playerNumber: 1 | 2
-		player: Player | null
+
+		playerNumber: 0 | 1 | 2
+		playerOne: Player | null
+		playerTwo: Player | null
 	}
 }

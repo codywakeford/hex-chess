@@ -91,13 +91,13 @@ export function pawnMoves(position: BoardPosition, boardState: BoardState, color
 		diagonalsToCheck.push(bottomLeftHex, bottomRightHex)
 	}
 
-	diagonalsToCheck.forEach((boardPosition) => {
-		if (!outOfBounds(boardPosition, boardState)) {
-			if (positionContainsPiece(boardPosition, boardState, color)) {
-				pawnMoves.push(boardPosition)
-			}
-		}
-	})
+	// check diagonals for enemy pieces : if found add them to moves
+	for (let boardPosition of diagonalsToCheck) {
+		if (outOfBounds(boardPosition, boardState)) continue
+		if (positionContainsPiece(boardPosition, boardState, color) != "enemy") continue
+
+		pawnMoves.push(boardPosition)
+	}
 
 	// if white move down // if on start pos move twice
 	if (color === "white") {
@@ -193,6 +193,7 @@ export function horseMoves(position: BoardPosition, boardState: BoardState) {
 			currentPos = _function(currentPos)
 		}
 		if (outOfBounds(currentPos, boardState)) continue
+		if (positionContainsPiece(currentPos, boardState, boardState.turn) === "ally") continue
 		horseMoves.push(currentPos)
 	}
 
