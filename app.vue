@@ -1,28 +1,9 @@
 <template>
 	<main>
-		<h1>Gliński's Chess</h1>
-
-		<h5>Game ID: {{ game.game.gameId }}</h5>
-		<pre>{{ player }}</pre>
-		<pre>{{ gameObj }}</pre>
-		<pre>Turn:{{ turn }}</pre>
+		<Nav />
 		<Board :height="boardHeight" />
 
-		<div class="control-panel">
-			<button @click="game.leaveGame(), game.init()">Leave Game</button>
-			<button @click="restart()">Restart Game</button>
-			<div class="join-game">
-				<button @click="game.joinGame(gameId)">Join-Game</button>
-				<div class="join-game">
-					<input
-						placeholder="Enter a game ID to join."
-						type="text"
-						v-model="gameId"
-					/>
-				</div>
-			</div>
-		</div>
-		<select
+		<!-- <select
 			name="colorWave"
 			id="colorWave"
 			@input="updateColor()"
@@ -34,7 +15,7 @@
 			>
 				{{ name }}
 			</option>
-		</select>
+		</select> -->
 		<p class="source-code">
 			This is an open source project. Find the source code
 			<nuxt-link
@@ -44,11 +25,12 @@
 			>
 		</p>
 	</main>
+
 	<Head>
 		<Title>Hex Chess</Title>
 		<Meta>
-			Play Hex Chess, a unique twist on classic chess with a hexagonal board! Challenge your
-			strategic skills, explore new moves, and enjoy exciting gameplay with friends or AI
+			Play Hex Chess Online, a unique twist on classic chess with a hexagonal board! Challenge
+			your strategic skills, explore new moves, and enjoy exciting gameplay with friends or AI
 			opponents. Perfect for chess enthusiasts and newcomers alike!" This description is
 			clear, includes keywords like "hex chess" and "unique twist on classic chess," and
 			appeals to both chess lovers and new players. Let me know if you'd like adjustments for
@@ -58,17 +40,21 @@
 </template>
 
 <script lang="ts" setup>
-import { colorWaves } from "./composables/colorWaves"
+// import { colorWaves } from "./composables/colorWaves"
 
 const game = useGameStore()
 const selectedColors = ref([])
+
+const lastTurn = computed(() => {
+	return game.board.latestMoves
+})
 
 function updateColor() {
 	game.selectedColors = selectedColors.value
 }
 
-const player = computed(() => {
-	return game.player
+const playerColor = computed(() => {
+	return game.player.color
 })
 
 const gameObj = computed(() => {
@@ -85,10 +71,9 @@ const boardHeight = computed(() => {
 	const windowWidth = window.innerWidth
 	const windowHeight = window.innerHeight
 
-	return windowHeight > windowWidth ? windowWidth : windowHeight - 300
+	return windowHeight > windowWidth ? windowWidth : windowHeight - 250
 })
 
-const gameId = ref("")
 const turn = computed(() => {
 	return game.board.turn
 })

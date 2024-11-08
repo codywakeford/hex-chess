@@ -1,6 +1,7 @@
 import { useWebSocket } from "@vueuse/core"
 import { getCpuMove } from "~/shared/cpu"
 import { positionContainsPiece } from "~/shared/moves"
+import { pawnUpgradePositions } from "~/shared/upgradePawn"
 import { generateUniqueId } from "~/shared/utils"
 
 export const useGameStore = defineStore("game", {
@@ -252,7 +253,21 @@ export const useGameStore = defineStore("game", {
 
 			this.websocket.close()
 
+			this.resetLatestMoves()
 			this.resetBoardHighlights()
+		},
+
+		resetLatestMoves() {
+			this.board.latestMoves = {
+				white: {
+					to: null,
+					from: null,
+				},
+				black: {
+					to: null,
+					from: null,
+				},
+			}
 		},
 
 		resetBoardHighlights() {
@@ -342,6 +357,8 @@ export const useGameStore = defineStore("game", {
 				playerTwo: gameInstance.playerTwo,
 				playBoth: false,
 			}
+
+			this.resetLatestMoves()
 		},
 
 		resetBoardPiecesPieceId() {
@@ -395,6 +412,7 @@ export const useGameStore = defineStore("game", {
 			}
 
 			this.moveGamePiece(fromPosition, toPosition)
+			// this.checkPawnUpgrade(gamePiece)
 
 			// send update to ws
 			const payload: UpdateMoveRequest = {
@@ -412,6 +430,16 @@ export const useGameStore = defineStore("game", {
 			this.checkCheck(toPosition)
 
 			if (this.isCpuTurn) this.cpuMove()
+		},
+
+		checkPawnUpgrade(gamePiece: GamePiece) {
+			if (gamePiece.type !== "pawn") return
+			if (!gamePiece.boardPosition) throw new Error("Game piece not found")
+
+			const canUpgrade =
+				pawnUpgradePositions
+					.get(gamePiece.color)
+					?.has(stringPos(gamePiece.boardPosition)) ?? false
 		},
 
 		moveGamePiece(fromPosition: BoardPosition, toPosition: BoardPosition) {
