@@ -4,6 +4,7 @@
 
 		<h5>Game ID: {{ game.game.gameId }}</h5>
 		<pre>{{ player }}</pre>
+		<pre>{{ gameObj }}</pre>
 		<pre>Turn:{{ turn }}</pre>
 		<Board :height="boardHeight" />
 
@@ -68,6 +69,10 @@ function updateColor() {
 
 const player = computed(() => {
 	return game.player
+})
+
+const gameObj = computed(() => {
+	return game.game
 })
 
 async function restart() {

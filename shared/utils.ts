@@ -171,18 +171,37 @@ export function getAllPlayerPaths(
 	const playerPieces = getPlayerPieces(boardState, color)
 	const paths = new Set<string>()
 
-	playerPieces.forEach((piece) => {
-		if (piece.type === omitType) return
+	for (let gamePiece of playerPieces) {
+		if (gamePiece.type === omitType) continue
 
-		const path = getPathFromPiece(piece, boardState)
+		const path = getPathFromPiece(gamePiece, boardState)
 		if (path) {
 			path.forEach((position) => {
 				paths.add(stringPos(position))
 			})
 		}
-	})
+	}
 
 	return Array.from(paths).map((string) => {
 		return objPos(string)
 	})
+}
+export function getAllPlayerPathsWithPieces(
+	boardState: BoardState,
+	color: GamePieceColor,
+	omitType?: GamePiece["type"],
+) {
+	const playerPieces = getPlayerPieces(boardState, color)
+	const paths = new Map<string, BoardPosition[]>()
+
+	for (let gamePiece of playerPieces) {
+		if (gamePiece.type === omitType) continue
+
+		const path = getPathFromPiece(gamePiece, boardState)
+		if (!path) continue
+
+		paths.set(gamePiece.pieceId, path)
+	}
+
+	return paths
 }

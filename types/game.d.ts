@@ -10,6 +10,7 @@ declare global {
 		boardState: BoardState
 	}
 
+	type OpponentType = "cpu" | "human"
 	interface TransmissionGameInstance extends GameInstance {
 		boardState: TransmissionBoardState
 	}
@@ -25,6 +26,8 @@ declare global {
 		checkState: CheckState
 		latestMoves: LatestMoves
 		turn: GamePieceColor
+		opponent: OpponentType
+		cpuLevel: number
 	}
 
 	interface ServerBoardState extends BoardState {
@@ -40,6 +43,8 @@ declare global {
 		checkState: CheckState
 		latestMoves: LatestMoves
 		turn: GamePieceColor
+		opponent: OpponentType
+		cpuLevel: number
 	}
 
 	interface selectedBoardPiece {

@@ -52,7 +52,10 @@ const hex = computed(() => {
 
 async function handleHexClick(hex: BoardPiece) {
 	if (hex.highlight === "move" || hex.highlight === "attack") {
-		await game.movePiece(hex.boardPosition)
+		const fromPosition = game.getSelectedBoardPosition
+		if (!fromPosition) throw new Error("No positoin found")
+
+		game.movePiece(hex.boardPosition, game.getSelectedGamePiece, fromPosition)
 		return
 	}
 
@@ -64,7 +67,7 @@ const highlight = computed(() => {
 })
 
 const hexHeight = computed(() => {
-	return `${Math.ceil(props.height)}px`
+	return `${props.height}px`
 })
 
 const hexWidth = computed(() => {
@@ -72,7 +75,7 @@ const hexWidth = computed(() => {
 })
 
 const halfHeight = computed(() => {
-	return `${Math.ceil(props.height / 1.73)}px`
+	return `${props.height / 1.73}px`
 })
 
 const offsetTop = computed(() => {

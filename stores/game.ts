@@ -1,4 +1,5 @@
-import { onClickOutside, useWebSocket } from "@vueuse/core"
+import { useWebSocket } from "@vueuse/core"
+import { getCpuMove } from "~/shared/cpu"
 import { positionContainsPiece } from "~/shared/moves"
 import { generateUniqueId } from "~/shared/utils"
 
@@ -19,6 +20,8 @@ export const useGameStore = defineStore("game", {
 		} as Player,
 
 		board: {
+			opponent: "cpu" as OpponentType,
+			cpuLevel: 1 as number,
 			turn: "white" as GamePieceColor,
 			checkState: { white: null, black: null },
 			gamePieces: new Map() as GamePieceMap,
@@ -73,6 +76,37 @@ export const useGameStore = defineStore("game", {
 		isPlayersTurn(state) {
 			return state.player.color === state.board.turn
 		},
+
+		getSelectedGamePiece(state) {
+			const selectedBoardPiece = state.board.selectedBoardPiece
+			if (!selectedBoardPiece || !selectedBoardPiece.pieceId) {
+				console.log(state.board.selectedBoardPiece)
+				throw new Error("No piece found")
+			}
+
+			const selectedGamePiece = state.board.gamePieces.get(selectedBoardPiece.pieceId)
+			if (!selectedGamePiece) throw new Error("No piece found")
+
+			return selectedGamePiece
+		},
+
+		getSelectedBoardPosition(state) {
+			const selectedBoardPiece = state.board.selectedBoardPiece
+			if (!selectedBoardPiece || !selectedBoardPiece.pieceId) {
+				console.log(state.board.selectedBoardPiece)
+				throw new Error("No piece found")
+			}
+
+			const position = selectedBoardPiece.boardPosition
+			if (!position) throw new Error("Position not found")
+
+			return position
+		},
+
+		isCpuTurn(state) {
+			if (!state.game.playerTwo) throw new Error("No player two found")
+			return state.board.opponent === "cpu" && state.board.turn === state.game.playerTwo.color
+		},
 	},
 
 	actions: {
@@ -86,13 +120,14 @@ export const useGameStore = defineStore("game", {
 			const cachedPlayerId = this.cachedPlayer()
 			const playerId = cachedPlayerId ? cachedPlayerId : generateUniqueId()
 
+			localStorage.setItem("playerId", JSON.stringify(playerId.trim()))
+
 			await this.getGame(gameId, newGame)
 			this.initWebsocket(gameId, playerId)
 
 			console.log(playerId)
 
 			this.player.id = playerId
-			localStorage.setItem("playerId", JSON.stringify(playerId.trim()))
 			localStorage.setItem("gameId", JSON.stringify(gameId.trim()))
 		},
 
@@ -141,12 +176,13 @@ export const useGameStore = defineStore("game", {
 						pieceEnd,
 					}: { pieceStart: BoardPosition; pieceEnd: BoardPosition } = response
 
-					const startBoardPiece = this.getBoardPieces.get(stringPos(pieceStart))
-					const endBoardPiece = this.getBoardPieces.get(stringPos(pieceEnd))
+					const startBoardPiece = this.getBoardPiece(pieceStart)
+					const endBoardPiece = this.getBoardPiece(pieceEnd)
 
-					if (!startBoardPiece || !endBoardPiece || !startBoardPiece.pieceId) {
-						throw new Error("Board piece not found.")
-					}
+					if (!startBoardPiece) throw new Error("startBoardPiece not found.")
+					if (!endBoardPiece) throw new Error("endBoardPiece not found.")
+					if (!startBoardPiece.pieceId)
+						throw new Error("startBoardPiece.pieceId not found.")
 
 					const gamePiece = this.getGamePieces.get(startBoardPiece.pieceId)
 
@@ -273,7 +309,7 @@ export const useGameStore = defineStore("game", {
 				return
 			}
 
-			if (piece.color !== this.player.color && !this.game.playBoth) {
+			if (piece.color !== this.player.color) {
 				this.board.selectedBoardPiece = null
 				return
 			}
@@ -316,7 +352,7 @@ export const useGameStore = defineStore("game", {
 			if (newGame) {
 				gameInstance = await $fetch<TransmissionGameInstance>("/api/create-game", {
 					method: "post",
-					body: { gameId, playerId },
+					body: { gameId, playerId, opponent: this.board.opponent },
 				})
 			} else {
 				gameInstance = await $fetch<TransmissionGameInstance | null>(`/api/${gameId}`, {
@@ -337,7 +373,7 @@ export const useGameStore = defineStore("game", {
 				gameId: gameInstance.id,
 				playerOne: gameInstance.playerOne,
 				playerTwo: gameInstance.playerTwo,
-				playBoth: true,
+				playBoth: false,
 			}
 		},
 
@@ -373,28 +409,23 @@ export const useGameStore = defineStore("game", {
 			this.board.turn = nextTurnColor
 		},
 
-		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition) {
-			const piece = this.getGamePiece(fromPos)
-
-			if (!piece) throw new Error("No piece found.")
-
-			this.board.latestMoves[piece.color].from = fromPos
-			this.board.latestMoves[piece.color].to = toPos
+		updateLatestMove(fromPos: BoardPosition, toPos: BoardPosition, gamePiece: GamePiece) {
+			this.board.latestMoves[gamePiece.color].from = fromPos
+			this.board.latestMoves[gamePiece.color].to = toPos
 		},
 
-		async movePiece(toPosition: BoardPosition) {
-			if (!this.isPlayersTurn && !this.game.playBoth) return
+		movePiece(toPosition: BoardPosition, gamePiece: GamePiece, fromPosition: BoardPosition) {
+			if (!this.isPlayersTurn && !this.isCpuTurn) return
 
-			const selectedBoardPiece = this.board.selectedBoardPiece
-			if (!selectedBoardPiece) return
-			const fromPosition = selectedBoardPiece.boardPosition
-			if (!selectedBoardPiece && fromPosition) throw new Error("Board piece not found.")
+			console.log(this.board.turn)
+			if (!toPosition) throw new Error("toPosition undefined")
 
-			this.updateLatestMove(fromPosition, toPosition)
-			this.changeTurn(this.board.turn)
+			// const gamePiece = this.getSelectedGamePiece
 
-			const gamePiece = this.getGamePiece(fromPosition)
-			if (!gamePiece) throw new Error("Piece not found")
+			console.log("Retrieved game piece:", gamePiece)
+			if (!gamePiece || !gamePiece.pieceId) {
+				console.log(gamePiece)
+			}
 
 			const side = positionContainsPiece(toPosition, this.board, gamePiece.color)
 			if (side === "enemy") {
@@ -404,14 +435,7 @@ export const useGameStore = defineStore("game", {
 				playSound("move")
 			}
 
-			gamePiece.boardPosition = toPosition
-
-			const boardPiece = this.getBoardPiece(fromPosition)
-			if (boardPiece) boardPiece.pieceId = null // reset previous hex piece id .
-			const newBoardPiece = this.getBoardPiece(toPosition)
-			if (newBoardPiece) {
-				newBoardPiece.pieceId = gamePiece.pieceId
-			}
+			this.moveGamePiece(fromPosition, toPosition)
 
 			// send update to ws
 			const payload: UpdateMoveRequest = {
@@ -422,15 +446,31 @@ export const useGameStore = defineStore("game", {
 				gameId: this.game.gameId,
 			}
 
-			console.log(payload)
-			// console.log(payload.pieceStart)
-			// console.log(payload.pieceEnd)
-
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
 
 			this.resetBoardHighlights()
 			this.checkCheck(toPosition)
+
+			if (this.isCpuTurn) this.cpuMove()
+		},
+
+		moveGamePiece(fromPosition: BoardPosition, toPosition: BoardPosition) {
+			const fromBoardPiece = this.board.boardPieces.get(stringPos(fromPosition))
+			const toBoardPiece = this.board.boardPieces.get(stringPos(toPosition))
+			if (!fromBoardPiece || !toBoardPiece) throw new Error("Board piece not found.")
+
+			if (!fromBoardPiece.pieceId) throw new Error("Piece id not found")
+			toBoardPiece.pieceId = fromBoardPiece.pieceId
+
+			const gamePiece = this.board.gamePieces.get(fromBoardPiece.pieceId)
+			if (!gamePiece) throw new Error("Game Piece not found")
+			gamePiece.boardPosition = toPosition
+
+			fromBoardPiece.pieceId = null
+
+			this.updateLatestMove(fromPosition, toPosition, gamePiece)
+			this.changeTurn(this.board.turn)
 		},
 
 		kill(position: BoardPosition) {
@@ -472,6 +512,29 @@ export const useGameStore = defineStore("game", {
 			if (!checkmate) return // leave king in check
 
 			this.board.checkState[defenderColor] = "checkmate"
+		},
+
+		cpuMove() {
+			if (this.board.opponent !== "cpu") return
+			if (!this.game.playerTwo) throw new Error("No player two found.")
+
+			console.log("cpu movibng")
+
+			let cpuPlayer = this.game.playerTwo
+
+			const cpuMove = getCpuMove(this.board, cpuPlayer)
+
+			if (!cpuMove) throw new Error("No move defined")
+
+			const boardPiece = this.getBoardPiece(cpuMove.move)
+			if (!boardPiece) throw new Error("NO board piece found")
+
+			this.board.selectedBoardPiece = boardPiece
+
+			const gamePiece = this.getGamePiece(boardPiece.boardPosition)
+			if (!gamePiece || !gamePiece.boardPosition) throw new Error("No game piece found.")
+
+			this.movePiece(cpuMove.move, gamePiece, gamePiece.boardPosition)
 		},
 	},
 })

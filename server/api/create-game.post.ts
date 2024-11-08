@@ -2,9 +2,10 @@ import { startingPieces } from "../hardData"
 import { initGameMap } from "../utils"
 
 export default eventHandler(async (event) => {
-	const { gameId, playerId } = await readBody(event)
+	const { gameId, playerId, opponent } = await readBody(event)
 
-	if (!gameId || !playerId) throw new Error("gameId | playerId not found.")
+	if (!gameId || !playerId || !opponent)
+		throw new Error("gameId | playerId | opponent not found.")
 
 	const boardState: TransmissionBoardState = {
 		gamePieces: structuredClone(startingPieces),
@@ -21,13 +22,24 @@ export default eventHandler(async (event) => {
 				from: null,
 			},
 		},
+		opponent: opponent,
+		cpuLevel: 1,
 		turn: "white" as GamePieceColor,
+	}
+
+	let playerTwo: Player | null = null
+
+	if (opponent === "cpu") {
+		playerTwo = {
+			id: "cpu",
+			color: "black",
+		}
 	}
 
 	const gameInstance: TransmissionGameInstance = {
 		id: gameId,
 		playerOne: null,
-		playerTwo: null,
+		playerTwo: playerTwo,
 
 		boardState: boardState,
 	}
