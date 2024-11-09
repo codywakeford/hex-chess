@@ -1,5 +1,4 @@
 import { gameInstances } from "~/server/cache"
-import { startingPieces } from "../hardData"
 import { setPiecesToStartPositions } from "../utils"
 
 export default defineWebSocketHandler({

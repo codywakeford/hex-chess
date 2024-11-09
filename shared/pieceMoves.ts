@@ -64,6 +64,7 @@ export function kingMoves(
 		const newPosition = _function(position)
 
 		if (outOfBounds(newPosition, boardState)) return
+
 		const pieceSide = positionContainsPiece(newPosition, boardState, color)
 
 		if (pieceSide === "enemy" || pieceSide === null) {

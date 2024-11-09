@@ -36,7 +36,7 @@ const hexIds = computed(() => {
 })
 
 const hexHeight = computed(() => {
-	return props.height / 11
+	return Math.ceil(props.height) / 11
 })
 
 const props = defineProps<{

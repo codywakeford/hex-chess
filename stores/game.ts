@@ -150,6 +150,7 @@ export const useGameStore = defineStore("game", {
 				}
 
 				if (response.type === "move") {
+					this.resetBoardHighlights()
 					this.moveGamePiece(response.pieceStart, response.pieceEnd)
 				}
 
@@ -281,7 +282,10 @@ export const useGameStore = defineStore("game", {
 		selectBoardPiece(boardPiece: BoardPiece) {
 			this.resetBoardHighlights()
 
-			if (!positionContainsPiece(boardPiece.boardPosition, this.board, this.player.color)) {
+			if (
+				positionContainsPiece(boardPiece.boardPosition, this.board, this.player.color) !==
+				"ally"
+			) {
 				return
 			}
 
