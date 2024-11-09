@@ -2,6 +2,12 @@
 	<main>
 		<Nav />
 		<Board :height="boardHeight" />
+		<h3
+			v-if="game.game?.playerTwo?.id === 'cpu'"
+			class="gameId"
+		>
+			Game ID: {{ gameId }}
+		</h3>
 
 		<p class="source-code">
 			This is an open source project. Find the source code
@@ -28,6 +34,10 @@
 
 <script lang="ts" setup>
 const game = useGameStore()
+
+const gameId = computed(() => {
+	return game.game.gameId
+})
 
 const boardHeight = computed(() => {
 	if (!import.meta.client) return 500
@@ -90,4 +100,9 @@ main
 .source-code
 	position: fixed
 	bottom: 0
+
+.gameId
+	position: absolute
+	top: 75px
+	right: 25px
 </style>

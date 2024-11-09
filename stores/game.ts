@@ -83,7 +83,6 @@ export const useGameStore = defineStore("game", {
 		getSelectedGamePiece(state) {
 			const selectedBoardPiece = state.board.selectedBoardPiece
 			if (!selectedBoardPiece || !selectedBoardPiece.pieceId) {
-				console.log(state.board.selectedBoardPiece)
 				throw new Error("No piece found")
 			}
 
@@ -96,7 +95,6 @@ export const useGameStore = defineStore("game", {
 		getSelectedBoardPosition(state) {
 			const selectedBoardPiece = state.board.selectedBoardPiece
 			if (!selectedBoardPiece || !selectedBoardPiece.pieceId) {
-				console.log(state.board.selectedBoardPiece)
 				throw new Error("No piece found")
 			}
 
@@ -126,11 +124,8 @@ export const useGameStore = defineStore("game", {
 
 			localStorage.setItem("playerId", JSON.stringify(playerId.trim()))
 
-			console.log(playerId)
 			await this.getGame(gameId, newGame)
 			this.initWebsocket(gameId, playerId)
-
-			console.log(playerId)
 
 			this.player.id = playerId
 			localStorage.setItem("gameId", JSON.stringify(gameId.trim()))
@@ -151,7 +146,6 @@ export const useGameStore = defineStore("game", {
 				const response = JSON.parse(newValue) as WebsocketResponse
 
 				if (response.type === "kill") {
-					console.log("ws says kill server")
 					this.kill(response.piecePosition, false)
 				}
 
@@ -234,6 +228,7 @@ export const useGameStore = defineStore("game", {
 			const payload: RestartRequest = {
 				type: "restart",
 				gameId: this.game.gameId,
+				gameType: this.gameType,
 			}
 			const payloadString = JSON.stringify(payload)
 			this.websocket.send(payloadString)
@@ -492,7 +487,6 @@ export const useGameStore = defineStore("game", {
 		},
 
 		kill(position: BoardPosition, notifyServer: boolean) {
-			console.log("killing game piece")
 			const pieceToKill = this.getGamePiece(position)
 			const boardPiece = this.getBoardPiece(position)
 
@@ -539,8 +533,6 @@ export const useGameStore = defineStore("game", {
 			if (this.board.opponent !== "cpu") return
 			setTimeout(() => {
 				if (!this.game.playerTwo) throw new Error("No player two found.")
-
-				console.log("cpu movibng")
 
 				let cpuPlayer = this.game.playerTwo
 

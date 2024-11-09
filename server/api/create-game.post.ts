@@ -49,10 +49,6 @@ export default eventHandler(async (event) => {
 		color: "black",
 	}
 
-	console.log("")
-	console.log("creating Game...")
-	console.log(gameType)
-
 	const gameInstance: TransmissionGameInstance = {
 		id: gameId,
 		playerOne,
@@ -60,8 +56,6 @@ export default eventHandler(async (event) => {
 
 		boardState: boardState,
 	}
-	console.log(gameInstance.playerOne)
-	console.log(gameInstance.playerTwo)
 
 	initGameMap(gameInstance) // add instance to server cache
 

@@ -84,10 +84,7 @@ export function isCheck(
 	if (!boardPiece) throw new Error("Board piece not found")
 
 	const enemyPieceId = boardPiece.pieceId
-	if (!enemyPieceId) {
-		console.log(enemyPieceId)
-		throw new Error("Enemy Piece id not defined:")
-	}
+	if (!enemyPieceId) throw new Error("Enemy Piece id not defined:")
 
 	const enemyPiece = boardState.gamePieces.get(enemyPieceId) // only the last moved piece is checked to see if they challenge the king
 	if (!enemyPiece) throw new Error("Enemy Piece not found.")

@@ -39,6 +39,7 @@ declare global {
 	interface RestartRequest {
 		type: "restart"
 		gameId: string
+		gameType: GameType
 	}
 
 	type WebsocketResponse =

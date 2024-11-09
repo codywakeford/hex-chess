@@ -15,10 +15,6 @@ export default defineWebSocketHandler({
 		if (!gameId) throw new Error("gameId not found")
 		if (!playerId) throw new Error("playerId not found")
 
-		// console.log("")
-		// console.log("PlayerJoining:", playerId)
-		// console.log("Joining Game", gameId)
-
 		const game = gameInstances.get(gameId) as GameInstance
 		if (!game) return
 
@@ -97,7 +93,7 @@ export default defineWebSocketHandler({
 })
 
 function restartGame(request: RestartRequest) {
-	setPiecesToStartPositions(request.gameId)
+	setPiecesToStartPositions(request.gameId, request.gameType)
 }
 
 function getPieceByBoardPosition(gameId: string, boardPosition: BoardPosition) {
@@ -111,8 +107,6 @@ function getPieceByBoardPosition(gameId: string, boardPosition: BoardPosition) {
 function moveGamePiece(request: UpdateMoveRequest) {
 	const game = gameInstances.get(request.gameId) as GameInstance
 	if (!game) throw new Error("Game does not exist.")
-
-	console.log(request)
 
 	const gamePiece = game.boardState.gamePieces.get(request.pieceId)
 
@@ -139,7 +133,6 @@ function leaveGame(request: LeaveRequest) {
 
 	// Delete game if empty
 	if (!game.playerOne && !game.playerTwo) {
-		console.log("Deleting game instance:", request.gameId)
 		gameInstances.delete(request.gameId)
 	}
 }
