@@ -245,16 +245,10 @@ export function getStraightPaths(
 
 		while (!isOutOfBounds) {
 			cursorPos = _function(cursorPos)
+			if (outOfBounds(cursorPos, boardState)) break
+			if (positionContainsPiece(cursorPos, boardState, color) === "ally") break
 			boardPieces.add(cursorPos)
-			if (outOfBounds(cursorPos, boardState)) return
-
-			const side = positionContainsPiece(cursorPos, boardState, color)
-			if (side === "enemy") {
-				boardPieces.add(cursorPos)
-				break
-			} else if (side === "ally") {
-				break
-			}
+			if (positionContainsPiece(cursorPos, boardState, color) === "enemy") break
 		}
 	})
 
@@ -287,12 +281,9 @@ export function getDiagonalPaths(
 
 		while (!isOutOfBounds) {
 			cursorPos = _function(cursorPos)
-			diagonalHexagons.add(cursorPos)
 			if (outOfBounds(cursorPos, boardState)) break
 			if (positionContainsPiece(cursorPos, boardState, color) === "ally") break
-
-			diagonalHexagons.add(cursorPos) // add to moves if : board piece is empty or if board ppiece has enemy.
-
+			diagonalHexagons.add(cursorPos)
 			if (positionContainsPiece(cursorPos, boardState, color) === "enemy") break
 		}
 	})

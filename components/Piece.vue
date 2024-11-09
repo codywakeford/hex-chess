@@ -103,6 +103,7 @@ const imageHeight = computed(() => {
     z-index: 1000
     transition: left 0.15s, bottom 0.15s
     pointer-events: none
+    opacity: 0.2
 
     img
         position: relative
