@@ -1,7 +1,8 @@
 # Hex Chess
 
 Hex Chess also known as Gliński's Chess was popular for a time back in the 50s. It draws many
-similarities to regular chess and adds more complexity to the game.
+similarities to regular chess and adds more complexity to the game. Here I have made an online
+multiplayer version of the game.
 
 https://github.com/user-attachments/assets/883c842c-e3d3-4caf-8552-d8f7eca05ba6
 
