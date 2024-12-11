@@ -3,7 +3,7 @@
 Hex Chess also known as Gliński's Chess was popular for a time back in the 50s. It draws many
 similarities to regular chess and adds more complexity to the game.
 
-[2024-12-11 12-11-21.tar.gz](https://github.com/user-attachments/files/18095157/2024-12-11.12-11-21.tar.gz)
+https://github.com/user-attachments/assets/883c842c-e3d3-4caf-8552-d8f7eca05ba6
 
 As I want to transition from my own companies to a contract job in software I have built this app to
 showcase some of my skills. Here are some of the design choices I made for this project.
